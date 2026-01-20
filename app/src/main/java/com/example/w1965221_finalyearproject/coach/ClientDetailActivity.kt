@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.w1965221_finalyearproject.R
-
+//for adjusting the clients program
 class ClientDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

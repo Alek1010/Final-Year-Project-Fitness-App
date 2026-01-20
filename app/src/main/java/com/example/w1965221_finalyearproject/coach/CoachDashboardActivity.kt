@@ -6,6 +6,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.w1965221_finalyearproject.R
 
+//coach home screen
+//provides acess to client managment and future program adjustment
 class CoachDashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
