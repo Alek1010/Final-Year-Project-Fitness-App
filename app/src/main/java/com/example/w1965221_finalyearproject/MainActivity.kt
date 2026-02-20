@@ -16,8 +16,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
-        android.util.Log.d("FYP", "FirebaseAuth ready: ${auth.currentUser}")
 
         // Launch Login screen and close it so it doesnt appear in the background
         startActivity(Intent(this, LoginActivity::class.java))

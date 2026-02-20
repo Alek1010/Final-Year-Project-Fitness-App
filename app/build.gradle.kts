@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.firebase.firestore)
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+    implementation(libs.androidx.media3.common.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
