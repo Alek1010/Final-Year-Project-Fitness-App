@@ -12,6 +12,8 @@ import com.example.w1965221_finalyearproject.R
 import com.example.w1965221_finalyearproject.client.ClientDashboardActivity
 import com.example.w1965221_finalyearproject.coach.CoachDashboardActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 
 
 //sign up screen
@@ -21,6 +23,9 @@ class SignUpActivity : AppCompatActivity() {
 
     //firebase auth for account creation
     private lateinit var auth: FirebaseAuth
+
+    //Firestore database instnace cloud database
+    private val db by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,10 +43,11 @@ class SignUpActivity : AppCompatActivity() {
         createButton.setOnClickListener{
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString()
+            val fullName = name.text.toString().trim()
 
             //basic validation before calling firebase
-            if(email.isEmpty() || password.isEmpty()){
-                Toast.makeText(this,"enter email and password", Toast.LENGTH_SHORT).show()
+            if(fullName.isEmpty()|| email.isEmpty() || password.isEmpty()){
+                Toast.makeText(this,"enter name, email and password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -51,17 +57,44 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            //create user in firebase authentication
-            auth.createUserWithEmailAndPassword(email,password).addOnSuccessListener {
-                Toast.makeText(this,"account created please login",Toast.LENGTH_SHORT).show()
-                //after signup return to login screen
-                startActivity(Intent(this,LoginActivity::class.java))
-                finish()
+            //read selected roles
+            val role = when(roleGroup.checkedRadioButtonId){
+                R.id.radioCoach -> "coach"
+                else -> "client"//defualt
             }
-                .addOnFailureListener{e ->
-                    Log.e("AUTH","signup failed", e)
-                    Toast.makeText(this,"signup failed: ${e.message}",Toast.LENGTH_LONG).show()
+
+            //create firebase auth account with async
+            auth.createUserWithEmailAndPassword(email,password).addOnSuccessListener{
+                //only runs if successgul blocks runs
+                result ->
+                //each user has unique ID UID used inside document ID in firestore
+                val uid = result.user?.uid ?: return@addOnSuccessListener
+
+                //save user profile inot firestore using uid as document ID
+                //use hasmap key value structure
+                val userDoc = hashMapOf(
+                    "fullName" to fullName,
+                    "email" to email,
+                    "role" to role,
+                    "createdAt" to Timestamp.now()
+                )
+
+                //write profile data into firestore collection users
+                db.collection("user").document(uid).set(userDoc).addOnSuccessListener {
+                    Toast.makeText(this,"account created. please log in", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this,LoginActivity:: class.java))//back to log in
+                    finish()
+                }.addOnFailureListener{ e -> // if fire store fails
+                    Log.e("FIRESTORE","Failed to save user profile", e)
+                    Toast.makeText(this,"profile save failure: ${e.message}",Toast.LENGTH_LONG).show()
                 }
+            }
+                .addOnFailureListener { e -> // if authentication failes  e.g email already exist
+                    Log.e("AUTH", "signup failed ",e)
+                    Toast.makeText(this,"profile save failed: ${e.message}",Toast.LENGTH_LONG).show()
+                }
+
+
 
         }
 
