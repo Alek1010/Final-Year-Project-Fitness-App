@@ -4,20 +4,29 @@ import android.content.Intent
 import android.os.Bundle
 
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.w1965221_finalyearproject.R
 import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
 
 
 //client home screen / nav hub
 //acts central menu for client features(training , nutrion and progress)
 class ClientDashboardActivity : AppCompatActivity(){
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //show the xml screen
         setContentView(R.layout.activity_client_dashboard)
+
+        //welcome text to see the user who logs in
+        val welcomeText = findViewById<TextView>(R.id.tvWelcome)
+        UserUtils.loadUserName(welcomeText)
 
         //find logout button from xml
         val logoutButton = findViewById<Button>(R.id.btnLogout)
@@ -47,5 +56,6 @@ class ClientDashboardActivity : AppCompatActivity(){
             startActivity(Intent(this, WeightProgressActivity::class.java))
         }
     }
+
 
 }
