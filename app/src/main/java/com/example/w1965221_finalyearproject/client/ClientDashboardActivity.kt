@@ -2,13 +2,13 @@ package com.example.w1965221_finalyearproject.client
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.w1965221_finalyearproject.R
 import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
-import kotlin.math.log
+
 
 //client home screen / nav hub
 //acts central menu for client features(training , nutrion and progress)
