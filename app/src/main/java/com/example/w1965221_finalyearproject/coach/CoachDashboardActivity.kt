@@ -27,7 +27,7 @@ class CoachDashboardActivity : AppCompatActivity() {
         UserUtils.loadUserName(welcomeText)
 
         //find logout button from xml
-        val logoutButton = findViewById<Button>(R.id.btLogout)
+        val logoutButton = findViewById<Button>(R.id.btnLogout)
         logoutButton.setOnClickListener{
             UserUtils.logout(this)
         }
