@@ -1,7 +1,10 @@
 package com.example.w1965221_finalyearproject.FirebaseFunc
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.widget.TextView
+import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -41,5 +44,21 @@ object UserUtils{
                 welcomeText.text = "Welcome back"
             }
 
+    }
+
+    //log out func logs out current user send them back to login page
+    //remove repeated code
+    fun logout(currentActivity: Activity){
+        //sign out from firebase authentication
+        FirebaseAuth.getInstance().signOut()
+
+        //create intent to go back to login screen
+        val intent = Intent(currentActivity, LoginActivity::class.java)
+
+        //clear back stack so user cannot press back to dashboard
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        currentActivity.startActivity(intent)
+        //finish current activity
+        currentActivity.finish()
     }
 }

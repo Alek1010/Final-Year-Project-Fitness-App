@@ -11,6 +11,7 @@ import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
+import com.google.firebase.firestore.auth.User
 
 
 //client home screen / nav hub
@@ -31,16 +32,9 @@ class ClientDashboardActivity : AppCompatActivity(){
         //find logout button from xml
         val logoutButton = findViewById<Button>(R.id.btnLogout)
         logoutButton.setOnClickListener{
-            //sign user out of firebase
-            FirebaseAuth.getInstance().signOut()
-            //NAV back to login screen
-            val intent = Intent(this,LoginActivity::class.java)
-            //clear activity stack so user cannot press back to dashbaord
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            //finish current activity
-            finish()
+            UserUtils.logout(this)
         }
+
 
         //nav to training plan recyler based excerise list
         findViewById<Button>(R.id.btnTrainingPlan).setOnClickListener {

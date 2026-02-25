@@ -11,6 +11,7 @@ import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
+import kotlin.math.log
 
 
 //coach home screen
@@ -28,16 +29,9 @@ class CoachDashboardActivity : AppCompatActivity() {
         //find logout button from xml
         val logoutButton = findViewById<Button>(R.id.btLogout)
         logoutButton.setOnClickListener{
-            //sign user out of firebase
-            FirebaseAuth.getInstance().signOut()
-            //NAV back to login screen
-            val intent = Intent(this, LoginActivity::class.java)
-            //clear activity stack so user cannot press back to dashbaord
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            //finish current activity
-            finish()
+            UserUtils.logout(this)
         }
+
 
         findViewById<Button>(R.id.btnViewClients).setOnClickListener {
             startActivity(Intent(this, ClientListActivity::class.java))
