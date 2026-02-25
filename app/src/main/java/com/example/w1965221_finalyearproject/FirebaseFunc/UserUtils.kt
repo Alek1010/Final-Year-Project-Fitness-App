@@ -61,4 +61,6 @@ object UserUtils{
         //finish current activity
         currentActivity.finish()
     }
+
+
 }
