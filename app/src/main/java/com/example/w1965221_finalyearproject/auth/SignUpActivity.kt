@@ -1,20 +1,16 @@
 package com.example.w1965221_finalyearproject.auth
 
-import android.content.Intent
+
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.w1965221_finalyearproject.R
-import com.example.w1965221_finalyearproject.client.ClientDashboardActivity
-import com.example.w1965221_finalyearproject.coach.CoachDashboardActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.Timestamp
 
+import com.example.w1965221_finalyearproject.FirebaseFunc.SignUpUtils
 
 //sign up screen
 //shows role based routing client nd coach
@@ -23,9 +19,6 @@ class SignUpActivity : AppCompatActivity() {
 
     //firebase auth for account creation
     private lateinit var auth: FirebaseAuth
-
-    //Firestore database instnace cloud database
-    private val db by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +37,7 @@ class SignUpActivity : AppCompatActivity() {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString()
             val fullName = name.text.toString().trim()
+            val selectedRoleId = roleGroup.checkedRadioButtonId
 
             //basic validation before calling firebase
             if(fullName.isEmpty()|| email.isEmpty() || password.isEmpty()){
@@ -57,42 +51,30 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            //validate role is selcted
+            if(selectedRoleId == -1){
+                Toast.makeText(this,"please select a role", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             //read selected roles
             val role = when(roleGroup.checkedRadioButtonId){
                 R.id.radioCoach -> "coach"
-                else -> "client"//defualt
-            }
-
-            //create firebase auth account with async
-            auth.createUserWithEmailAndPassword(email,password).addOnSuccessListener{
-                //only runs if successgul blocks runs
-                result ->
-                //each user has unique ID UID used inside document ID in firestore
-                val uid = result.user?.uid ?: return@addOnSuccessListener
-
-                //save user profile inot firestore using uid as document ID
-                //use hasmap key value structure
-                val userDoc = hashMapOf(
-                    "fullName" to fullName,
-                    "email" to email,
-                    "role" to role,
-                    "createdAt" to Timestamp.now()
-                )
-
-                //write profile data into firestore collection users
-                db.collection("user").document(uid).set(userDoc).addOnSuccessListener {
-                    Toast.makeText(this,"account created. please log in", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this,LoginActivity:: class.java))//back to log in
-                    finish()
-                }.addOnFailureListener{ e -> // if fire store fails
-                    Log.e("FIRESTORE","Failed to save user profile", e)
-                    Toast.makeText(this,"profile save failure: ${e.message}",Toast.LENGTH_LONG).show()
+                R.id.radioClient ->"client"
+                else -> {
+                    Toast.makeText(this,"invalid role selcted", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
             }
-                .addOnFailureListener { e -> // if authentication failes  e.g email already exist
-                    Log.e("AUTH", "signup failed ",e)
-                    Toast.makeText(this,"profile save failed: ${e.message}",Toast.LENGTH_LONG).show()
-                }
+
+            SignUpUtils.creatAccount(
+                activity = this,
+                fullName = fullName,
+                email = email,
+                password = password,
+                role = role
+            )
+
 
 
 
