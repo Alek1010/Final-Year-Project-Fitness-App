@@ -26,6 +26,7 @@
         <activity android:name=".client.TrainingPlanActivity" />
         <activity android:name=".client.MacrosActivity"/>
         <activity android:name=".client.WeightProgressActivity"/>
+        <activity android:name=".client.ClientCalibrationActivity"/>
 
 
 
