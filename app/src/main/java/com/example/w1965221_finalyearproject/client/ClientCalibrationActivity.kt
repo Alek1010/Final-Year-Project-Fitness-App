@@ -10,8 +10,7 @@ import com.example.w1965221_finalyearproject.R
 import android.text.Editable
 import android.widget.EditText
 import android.text.TextWatcher
-
-
+import android.widget.Toast
 
 
 //client calibration
@@ -36,6 +35,11 @@ class ClientCalibrationActivity : AppCompatActivity() {
         val carbsInput = findViewById<EditText>(R.id.etTargetCarbs)
         val fatsInput = findViewById<EditText>(R.id.etTargetFats)
         val caloriesText = findViewById<TextView>(R.id.tvCalculatedCalories)
+
+        val weightInput = findViewById<EditText>(R.id.etBodyWeight)
+        val heightInput = findViewById<EditText>(R.id.etHeight)
+        val bodyFatInput = findViewById<EditText>(R.id.etBodyFat)
+        val rgActivityLevel = findViewById<RadioGroup>(R.id.rgActivityLevel)
 
         //helper safley read frams from edittext if input ==
         //50g it wont crash
@@ -87,6 +91,34 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
         //nav to dashboard
         finishbutton.setOnClickListener{
+
+            val weight = weightInput.text.toString().trim()
+            val height = heightInput.text.toString().trim()
+            val bodyFat = bodyFatInput.text.toString().trim()
+            val selectedActivtyId = rgActivityLevel.checkedRadioButtonId
+
+            //mandatory validation
+            if(weight.isEmpty()){
+                weightInput.error = "enter body weight"
+                return@setOnClickListener
+            }
+
+            if (height.isEmpty()){
+                heightInput.error = "enter height"
+                return@setOnClickListener
+            }
+
+            if (bodyFat.isEmpty()){
+                heightInput.error = "enter body fat %"
+                return@setOnClickListener
+            }
+
+            if(selectedActivtyId ==-1){
+                Toast.makeText(this,"Selecte activty level",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            //if all the validations pass -> continue
             startActivity(Intent(this, ClientDashboardActivity::class.java))
             finish()
         }

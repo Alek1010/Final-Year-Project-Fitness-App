@@ -47,6 +47,65 @@
             android:inputType="number"
             android:layout_marginBottom="20dp" />
 
+
+        <!-- Optional body fat % (used later for auto calorie calculations) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Body fat % (optional)"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/etBodyFat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Body fat % (e.g. 18.5)"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Activity level (always visible) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Activity level"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgActivityLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <RadioButton
+                android:id="@+id/rbSedentary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sedentary — office job, ~6k steps or less" />
+
+            <RadioButton
+                android:id="@+id/rbLightlyActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lightly active — 1–2 workouts/week, ~6–8k steps" />
+
+            <RadioButton
+                android:id="@+id/rbModerate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Moderate — ~3 workouts/week, ~8–10k steps" />
+
+            <RadioButton
+                android:id="@+id/rbVeryActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Very active — physical job / 4–5 workouts, 12k+ steps" />
+        </RadioGroup>
+
+
+
         <!-- Target setup method -->
         <TextView
             android:layout_width="wrap_content"
