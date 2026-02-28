@@ -5,6 +5,8 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.example.w1965221_finalyearproject.auth.LoginActivity
+import com.example.w1965221_finalyearproject.client.ClientCalibrationActivity
+import com.example.w1965221_finalyearproject.coach.CoachDashboardActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
@@ -51,9 +53,15 @@ object SignUpUtils {
                     .addOnSuccessListener {
                         Toast.makeText(activity,"Acount created please login", Toast.LENGTH_SHORT).show()
 
-                        //back to login
-                        activity.startActivity(Intent(activity,LoginActivity::class.java))
-                        activity.finish()
+                        if (role == "client") {
+                            activity.startActivity(
+                                Intent(activity, ClientCalibrationActivity::class.java)
+                            )
+                        } else {
+                            activity.startActivity(
+                                Intent(activity, CoachDashboardActivity::class.java)
+                            )
+                        }
                     }
                     .addOnFailureListener{e ->
                         Log.e("FIRESTROE","Failed to save user progile",e)
