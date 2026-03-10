@@ -13,6 +13,7 @@ import android.text.TextWatcher
 import android.widget.Toast
 import com.example.w1965221_finalyearproject.calculations.CalorieCalculator
 import com.example.w1965221_finalyearproject.calculations.MacroCalculator
+import com.example.w1965221_finalyearproject.FirebaseFunc.CalibrationUtils
 
 
 //client calibration
@@ -54,6 +55,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
         val rgRate = findViewById<RadioGroup>(R.id.rgRate)
 
+
         //helper safley read frams from edittext if input ==
         //50g it wont crash
         fun getInt(editText: EditText):Int{
@@ -86,6 +88,17 @@ class ClientCalibrationActivity : AppCompatActivity() {
             }
         }
 
+        //helper returns actvivty level as string
+        fun getSelectedActivityLevelText():String?{
+            return when (rgActivityLevel.checkedRadioButtonId){
+                R.id.rbSedentary -> "sedentary"
+                R.id.rbLightlyActive ->"light"
+                R.id.rbModerate->"moderate"
+                R.id.rbVeryActive->"very_active"
+                else->null
+            }
+        }
+
         //RUNs the auto calorie calculator snd return calorie value
         fun calculateSelectedAutoCalories(): Int? {
             val weight = getDouble(weightInput)
@@ -106,6 +119,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
             //gain / lose need more options
             val selectedRateId = rgRate.checkedRadioButtonId
+
 
             return when{
                 rbLose.isChecked && selectedRateId == R.id.rbMild -> targets.lose025
@@ -196,6 +210,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
             val height = heightInput.text.toString().trim()
             val bodyFat = bodyFatInput.text.toString().trim()
             val selectedActivtyId = rgActivityLevel.checkedRadioButtonId
+            val activityLevelText = getSelectedActivityLevelText() ?: "unknown"
 
             //mandatory validation
             if(weight.isEmpty()){
@@ -218,6 +233,32 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            //manual mode validation
+            if(rgTargetMode.checkedRadioButtonId == R.id.rbManual){
+                val protein = getInt(proteinInput)
+                val carbs = getInt(carbsInput)
+                val fats = getInt(fatsInput)
+
+                val calories = (protein * 4) + (carbs * 4)+ (fats*9)
+
+                val calibrationData = CalibrationUtils.ClientCalibrationData(
+                    bodyWeightKG = weight.toDouble(),
+                    heightCm = height.toInt(),
+                    bodyFatPercent = bodyFat.toDouble(),
+                    activityLevel =activityLevelText ,
+
+                    targetMode = "manual",
+                    targetCalories =  calories,
+                    targetProtein = protein,
+                    targetCarbs = carbs,
+                    targetFats = fats
+                )
+
+                CalibrationUtils.saveClientCalibration(this,calibrationData)
+                return@setOnClickListener
+
+            }
+
             //validation for auto mode
             if(rbAuto.isChecked){
                 if (!rbMaintain.isChecked && !rbGain.isChecked && !rbLose.isChecked) {
@@ -229,14 +270,14 @@ class ClientCalibrationActivity : AppCompatActivity() {
                     Toast.makeText(this, "Select a rate", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-
+                //calc the calories
                 val autoCalories = calculateSelectedAutoCalories()
                 if (autoCalories == null) {
                     Toast.makeText(this, "Unable to calculate calories", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
 
                 }
-
+                //calc the macros
                 val autoMacros = MacroCalculator.calculateMacros(
                     weightKg = weight.toDouble(),
                     calories = autoCalories
@@ -244,6 +285,21 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
                 // For now just show result in preview before moving on
                 autoPreviewText.text = "Calculated target: $autoCalories kcal"
+
+                val calibrationData = CalibrationUtils.ClientCalibrationData(
+                    bodyWeightKG = weight.toDouble(),
+                    heightCm = height.toInt(),
+                    bodyFatPercent = bodyFat.toDouble(),
+                    activityLevel = activityLevelText,
+                    targetMode = "auto",
+                    targetCalories = autoCalories,
+                    targetProtein = autoMacros.proteinGrams,
+                    targetCarbs = autoMacros.carbsGrams,
+                    targetFats = autoMacros.fatGrams,
+                )
+
+                CalibrationUtils.saveClientCalibration(this,calibrationData)
+                return@setOnClickListener
             }
 
             //if all the validations pass -> continue

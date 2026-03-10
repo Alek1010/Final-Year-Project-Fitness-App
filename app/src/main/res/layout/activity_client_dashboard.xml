@@ -52,12 +52,14 @@
             android:layout_marginBottom="8dp" />
 
         <TextView
+            android:id="@+id/tvOverView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Calories: 2,100 kcal\nProtein: 150g\ncarb: 200\nfat: 50\nWater: 1.8L"
+            android:text="Calories: -\nProtein: -\nCarbs: -\nFats: -\nWater: -"
             android:background="#EEEEEE"
             android:padding="16dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="24dp"
+            />
 
         <Button
             android:id="@+id/btnTrainingPlan"

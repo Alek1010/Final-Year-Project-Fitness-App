@@ -63,4 +63,37 @@ object UserUtils{
     }
 
 
+    //load client calories and macros to the overview on dashboard
+    fun loadClientOverview(overviewTextView: TextView){
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        if (currentUser == null){
+            overviewTextView.text = "Calories: -\nProtein: -\nCarbs: -\nFats: "
+            return
+        }
+
+        val uid = currentUser.uid
+
+        db.collection(USER_COLLECTION).document(uid).get()
+            .addOnSuccessListener { document ->
+                val calories = document.getLong("targetCalories")?.toInt()
+                val protein = document.getLong("targetProtein")?.toInt()
+                val carbs = document.getLong("targetCarbs")?.toInt()
+                val fats = document.getLong("targetFats")?.toInt()
+
+                val caloriesText = calories?.let { "$it kcal" }?:"-"
+                val proteinText = protein?.let { "${it}g" }?:"-"
+                val carbsText = carbs?.let { "${it}g" }?:"-"
+                val fatsText = fats?.let { "${it}g" }?:"-"
+
+                overviewTextView.text =
+                    "Calories: $caloriesText\n"+ "Protein: $proteinText\n"+"Carbs: $carbsText\n"+
+                            "Fats: $fatsText"
+
+            }
+            .addOnFailureListener{
+                overviewTextView.text = "Calories: -\nProtein: -\nCarbs: -\nFats: "
+            }
+    }
+
 }

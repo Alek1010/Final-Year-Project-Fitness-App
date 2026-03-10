@@ -29,6 +29,53 @@ object CalibrationUtils {
         val targetMode: String,
         val targetCalories: Int,
 
-        val
+        val targetProtein: Int? = null,
+        val targetCarbs: Int? = null,
+        val targetFats: Int? = null,
+        val targetWater: Double? = null
     )
+
+    //save calibration data into current client firebase document
+    fun saveClientCalibration(
+        activity:Activity,
+        data: ClientCalibrationData
+    ){
+        val currentUser = auth.currentUser
+
+        if(currentUser == null){
+            Toast.makeText(activity,"no loggedin user found",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val uid = currentUser.uid
+
+        //build Firestore updata map
+        val updates = hashMapOf<String,Any>(
+            "bodyWeigthKg" to data.bodyWeightKG,
+            "heightCm" to data.heightCm,
+            "bodyFatPercent" to data.bodyFatPercent,
+            "activityLevel" to data.activityLevel,
+            "targetMode" to data.targetMode,
+            "targetCalories" to data.targetCalories
+        )
+
+        data.targetProtein?.let { updates["targetProtein"] = it }
+        data.targetCarbs?.let { updates["targetCarbs"] = it }
+        data.targetFats?.let { updates["targetFats"] = it }
+        data.targetWater?.let { updates["targetWater"] = it }
+
+        db.collection(USER_COLLECTION)
+            .document(uid)
+            .set(updates, SetOptions.merge())
+            .addOnSuccessListener {
+                Toast.makeText(activity,"progile set up saved",Toast.LENGTH_SHORT).show()
+                val intent = Intent(activity,ClientDashboardActivity::class.java)
+                activity.startActivity(intent)
+                activity.finish()
+            }
+            .addOnFailureListener{ e ->
+                Log.e("FIRESTORE", "failed to save calibration", e)
+                Toast.makeText(activity,"saved failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
 }

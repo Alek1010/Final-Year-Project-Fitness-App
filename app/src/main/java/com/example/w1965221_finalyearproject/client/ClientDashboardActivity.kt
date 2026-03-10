@@ -25,6 +25,8 @@ class ClientDashboardActivity : AppCompatActivity(){
         //show the xml screen
         setContentView(R.layout.activity_client_dashboard)
 
+        val overviewText = findViewById<TextView>(R.id.tvOverView)
+
         //welcome text to see the user who logs in
         val welcomeText = findViewById<TextView>(R.id.tvWelcome)
         UserUtils.loadUserName(welcomeText)
@@ -34,6 +36,9 @@ class ClientDashboardActivity : AppCompatActivity(){
         logoutButton.setOnClickListener{
             UserUtils.logout(this)
         }
+
+        UserUtils.loadClientOverview(overviewText)
+
 
 
         //nav to training plan recyler based excerise list
