@@ -1,6 +1,6 @@
 package com.example.w1965221_finalyearproject.calculations
 
-import com.example.w1965221_finalyearproject.client.ClientCalibrationActivity
+
 import kotlin.math.roundToInt
 
 //calorie calculator
