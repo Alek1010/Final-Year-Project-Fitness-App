@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.text.TextWatcher
 import android.widget.Toast
 import com.example.w1965221_finalyearproject.calculations.CalorieCalculator
+import com.example.w1965221_finalyearproject.calculations.MacroCalculator
 
 
 //client calibration
@@ -233,7 +234,13 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 if (autoCalories == null) {
                     Toast.makeText(this, "Unable to calculate calories", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
+
                 }
+
+                val autoMacros = MacroCalculator.calculateMacros(
+                    weightKg = weight.toDouble(),
+                    calories = autoCalories
+                )
 
                 // For now just show result in preview before moving on
                 autoPreviewText.text = "Calculated target: $autoCalories kcal"
