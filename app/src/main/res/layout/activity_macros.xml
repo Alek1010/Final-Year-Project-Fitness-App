@@ -27,6 +27,14 @@
         android:padding="16dp"
         android:layout_marginBottom="20dp" />
 
+    <TextView
+        android:id="@+id/tvSelectedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date: 11 Mar 2026"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
     <!-- LOG INPUT -->
     <TextView
         android:layout_width="wrap_content"
@@ -80,6 +88,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Save Macros" />
+
+    <Button
+        android:id="@+id/btnPickDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Another Date"
+        android:layout_marginTop="12dp" />
 
     <!-- SUMMARY -->
     <TextView
