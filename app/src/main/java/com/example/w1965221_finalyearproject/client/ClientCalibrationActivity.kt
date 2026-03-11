@@ -88,6 +88,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
             }
         }
 
+
         //helper returns actvivty level as string
         fun getSelectedActivityLevelText():String?{
             return when (rgActivityLevel.checkedRadioButtonId){
@@ -96,6 +97,34 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 R.id.rbModerate->"moderate"
                 R.id.rbVeryActive->"very_active"
                 else->null
+            }
+        }
+
+        //helper convers selected goal as text
+        fun getSelectedGoalType(): String?{
+            return when {
+                rbMaintain.isChecked ->"maintain"
+                rbLose.isChecked ->"lose"
+                rbGain.isChecked -> "gain"
+                else -> null
+            }
+        }
+
+        //helper convers selected weekly rate a a number
+        //negative = lose, positive = gain 0 = maintain
+        fun getSelectedWeeklyRateKg(): Double? {
+            return when {
+                rbMaintain.isChecked -> 0.0
+
+                rbLose.isChecked && rgRate.checkedRadioButtonId == R.id.rbMild -> -0.25
+                rbLose.isChecked && rgRate.checkedRadioButtonId == R.id.rbStandard -> -0.5
+                rbLose.isChecked && rgRate.checkedRadioButtonId == R.id.rbExtreme -> -1.0
+
+                rbGain.isChecked && rgRate.checkedRadioButtonId == R.id.rbMild -> 0.25
+                rbGain.isChecked && rgRate.checkedRadioButtonId == R.id.rbStandard -> 0.5
+                rbGain.isChecked && rgRate.checkedRadioButtonId == R.id.rbExtreme -> 1.0
+
+                else -> null
             }
         }
 
@@ -186,7 +215,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
         }
 
         //show rate option only when gain or lose weight is selected
-        rgGaol.setOnCheckedChangeListener{_, checkedId ->
+        rgGaol.setOnCheckedChangeListener { _, checkedId ->
             val showRate = (checkedId == R.id.rbGain || checkedId == R.id.rbLose)
             layoutRate.visibility = if (showRate) android.view.View.VISIBLE else android.view.View.GONE
 
@@ -211,6 +240,8 @@ class ClientCalibrationActivity : AppCompatActivity() {
             val bodyFat = bodyFatInput.text.toString().trim()
             val selectedActivtyId = rgActivityLevel.checkedRadioButtonId
             val activityLevelText = getSelectedActivityLevelText() ?: "unknown"
+            val goalType = getSelectedGoalType()
+            val weeklyRateKg = getSelectedWeeklyRateKg()
 
             //mandatory validation
             if(weight.isEmpty()){
@@ -233,6 +264,16 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (goalType == null) {
+                Toast.makeText(this, "Select a goal", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if ((goalType == "lose" || goalType == "gain") && weeklyRateKg == null) {
+                Toast.makeText(this, "Select a rate", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             //manual mode validation
             if(rgTargetMode.checkedRadioButtonId == R.id.rbManual){
                 val protein = getInt(proteinInput)
@@ -251,7 +292,9 @@ class ClientCalibrationActivity : AppCompatActivity() {
                     targetCalories =  calories,
                     targetProtein = protein,
                     targetCarbs = carbs,
-                    targetFats = fats
+                    targetFats = fats,
+                    goalType = goalType,
+                    weeklyRateKg = weeklyRateKg
                 )
 
                 CalibrationUtils.saveClientCalibration(this,calibrationData)
@@ -261,15 +304,6 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
             //validation for auto mode
             if(rbAuto.isChecked){
-                if (!rbMaintain.isChecked && !rbGain.isChecked && !rbLose.isChecked) {
-                    Toast.makeText(this, "Select a goal", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if ((rbGain.isChecked || rbLose.isChecked) && rgRate.checkedRadioButtonId == -1) {
-                    Toast.makeText(this, "Select a rate", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
                 //calc the calories
                 val autoCalories = calculateSelectedAutoCalories()
                 if (autoCalories == null) {
@@ -282,6 +316,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
                     weightKg = weight.toDouble(),
                     calories = autoCalories
                 )
+
 
                 // For now just show result in preview before moving on
                 autoPreviewText.text = "Calculated target: $autoCalories kcal"
@@ -296,6 +331,8 @@ class ClientCalibrationActivity : AppCompatActivity() {
                     targetProtein = autoMacros.proteinGrams,
                     targetCarbs = autoMacros.carbsGrams,
                     targetFats = autoMacros.fatGrams,
+                    goalType = goalType,
+                    weeklyRateKg = weeklyRateKg
                 )
 
                 CalibrationUtils.saveClientCalibration(this,calibrationData)

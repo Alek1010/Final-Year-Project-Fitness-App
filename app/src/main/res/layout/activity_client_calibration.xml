@@ -135,6 +135,81 @@
                 android:text="Automatic"
                 android:layout_marginStart="16dp" />
         </RadioGroup>
+        <!-- Goal selection (used by both manual and auto modes) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Goal"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/rbMaintain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Maintain weight" />
+
+            <RadioButton
+                android:id="@+id/rbGain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gain weight" />
+
+            <RadioButton
+                android:id="@+id/rbLose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lose weight" />
+        </RadioGroup>
+
+        <!-- Rate selection (shown only for gain or lose) -->
+        <LinearLayout
+            android:id="@+id/layoutRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rate"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <RadioGroup
+                android:id="@+id/rgRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rbMild"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mild (0.25 kg/week)" />
+
+                <RadioButton
+                    android:id="@+id/rbStandard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Standard (0.5 kg/week)" />
+
+                <RadioButton
+                    android:id="@+id/rbExtreme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Extreme (1.0 kg/week)" />
+            </RadioGroup>
+        </LinearLayout>
 
         <!-- MANUAL SECTION -->
         <LinearLayout
@@ -213,73 +288,6 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
-            <RadioGroup
-                android:id="@+id/rgGoal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="12dp">
-
-                <RadioButton
-                    android:id="@+id/rbMaintain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Maintain weight" />
-
-                <RadioButton
-                    android:id="@+id/rbGain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Gain weight" />
-
-                <RadioButton
-                    android:id="@+id/rbLose"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Lose weight" />
-            </RadioGroup>
-
-            <!-- Only show if Gain or Lose selected -->
-            <LinearLayout
-                android:id="@+id/layoutRate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Choose rate"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
-
-                <RadioGroup
-                    android:id="@+id/rgRate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <RadioButton
-                        android:id="@+id/rbMild"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Mild (0.25 kg/week)" />
-
-                    <RadioButton
-                        android:id="@+id/rbStandard"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Standard (0.5 kg/week)" />
-
-                    <RadioButton
-                        android:id="@+id/rbExtreme"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Extreme (1.0 kg/week)" />
-                </RadioGroup>
-            </LinearLayout>
 
             <!-- Placeholder preview text (for UI only) -->
             <TextView

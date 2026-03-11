@@ -32,7 +32,10 @@ object CalibrationUtils {
         val targetProtein: Int? = null,
         val targetCarbs: Int? = null,
         val targetFats: Int? = null,
-        val targetWater: Double? = null
+        val targetWater: Double? = null,
+
+        val goalType:String? = null,
+        val weeklyRateKg:Double? = null
     )
 
     //save calibration data into current client firebase document
@@ -72,6 +75,8 @@ object CalibrationUtils {
         data.targetCarbs?.let { updates["targetCarbs"] = it }
         data.targetFats?.let { updates["targetFats"] = it }
         data.targetWater?.let { updates["targetWater"] = it }
+        data.goalType?.let { updates["goalType"] = it }
+        data.weeklyRateKg?.let { updates["weeklyRateKg"] = it }
 
         db.collection(USER_COLLECTION)
             .document(uid)
