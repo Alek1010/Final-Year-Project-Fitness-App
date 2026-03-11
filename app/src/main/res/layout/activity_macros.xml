@@ -19,12 +19,13 @@
 
     <!-- TARGETS -->
     <TextView
+        android:id="@+id/tvMacroTargets"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Targets\nCalories: 2200 kcal\nProtein: 150g\nCarbs: 250g\nFats: 70g"
+        android:text="Calories: -\nProtein: -\nCarb: -\nFat: -\nWater: -"
         android:background="#EEEEEE"
         android:padding="16dp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="20dp" />
 
     <!-- LOG INPUT -->
     <TextView

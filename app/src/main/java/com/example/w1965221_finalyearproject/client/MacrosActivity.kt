@@ -6,6 +6,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
 import com.example.w1965221_finalyearproject.R
 
 //allows client to log daily intake
@@ -22,7 +23,9 @@ class MacrosActivity : AppCompatActivity(){
         val carbsInput = findViewById<EditText>(R.id.etCarbs)
         val fatsInput = findViewById<EditText>(R.id.etFats)
         val waterInput = findViewById<EditText>(R.id.etWater)
-        val summaryText = findViewById<TextView>(R.id.tvSummary)
+        val targetText = findViewById<TextView>(R.id.tvMacroTargets)
+
+        UserUtils.loadClientOverview(targetText)
 
         findViewById<Button>(R.id.btnSaveMacros).setOnClickListener {
 
@@ -32,10 +35,7 @@ class MacrosActivity : AppCompatActivity(){
             val fats = fatsInput.text.toString()
             val water = waterInput.text.toString()
 
-            //text view to display summary of loggied intake
-            summaryText.text =
-                "Logged Intake\nCalories: $calories kcal\nProtein: $protein g\nCarbs: $carbs g\nFats: $fats g" +
-                        "Water: $water L"
+
 
             Toast.makeText(this, "Macros logged", Toast.LENGTH_SHORT).show()
         }
