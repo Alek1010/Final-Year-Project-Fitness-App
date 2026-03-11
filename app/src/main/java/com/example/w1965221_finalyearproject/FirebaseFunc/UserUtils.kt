@@ -73,15 +73,18 @@ object UserUtils{
         }
 
         val uid = currentUser.uid
-
+    // readinf from the firestroe
         db.collection(USER_COLLECTION).document(uid).get()
+            //when loaded sucessfuly
             .addOnSuccessListener { document ->
+                //even if value is saved as int firestore stores numbers internally as
+                //long
                 val calories = document.getLong("targetCalories")?.toInt()
                 val protein = document.getLong("targetProtein")?.toInt()
                 val carbs = document.getLong("targetCarbs")?.toInt()
                 val fats = document.getLong("targetFats")?.toInt()
 
-                val caloriesText = calories?.let { "$it kcal" }?:"-"
+                val caloriesText = calories?.let { "$it kcal" }?:"-"// formating ui if null -> "-"
                 val proteinText = protein?.let { "${it}g" }?:"-"
                 val carbsText = carbs?.let { "${it}g" }?:"-"
                 val fatsText = fats?.let { "${it}g" }?:"-"

@@ -50,16 +50,25 @@ object CalibrationUtils {
         val uid = currentUser.uid
 
         //build Firestore updata map
+        //to save to firestore
+        //uses key - value pairs similar to json
         val updates = hashMapOf<String,Any>(
+            //body stats
             "bodyWeigthKg" to data.bodyWeightKG,
             "heightCm" to data.heightCm,
             "bodyFatPercent" to data.bodyFatPercent,
+            //activity level
             "activityLevel" to data.activityLevel,
+            //mode of calories entered
             "targetMode" to data.targetMode,
+            //final calorie count
             "targetCalories" to data.targetCalories
         )
-
-        data.targetProtein?.let { updates["targetProtein"] = it }
+        // might not exist based on mode
+        //manual user inserts macros and it is give
+        //auto calculates calories and then insers macros based calories
+        //so if a field is null no error should error
+        data.targetProtein?.let { updates["targetProtein"] = it }//if exsit add
         data.targetCarbs?.let { updates["targetCarbs"] = it }
         data.targetFats?.let { updates["targetFats"] = it }
         data.targetWater?.let { updates["targetWater"] = it }
