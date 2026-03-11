@@ -11,22 +11,22 @@ import kotlin.math.roundToInt
 object WeightGoalCalculator {
     //holds the full result of the calculation
     data class weightGoalResult(
-        val startWeghtKg: Double,
+        val startWeightKg: Double,
         val weeklyRateKg:Double,
         val durationWeeks: Int,
         val finalGoalWeightKg: Double
     )
 
     fun calculateGoalWeight(
-        startWeghtKg: Double,
+        startWeightKg: Double,
         weeklyRateKg: Double,
         durationWeeks: Int
     ): weightGoalResult{
         //raw data before rounding
-        val finalWeight = startWeghtKg+(weeklyRateKg* durationWeeks)
+        val finalWeight = startWeightKg+(weeklyRateKg* durationWeeks)
 
         return weightGoalResult(
-            startWeghtKg = startWeghtKg,
+            startWeightKg = startWeightKg,
             weeklyRateKg = weeklyRateKg,
             durationWeeks = durationWeeks,
             //clean up floating points e.g 78.4999*10 = 784.999

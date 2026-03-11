@@ -21,7 +21,7 @@ object CalibrationUtils {
     //data holder for everything to be saved
     //from the client calibration screen
     data class ClientCalibrationData(
-        val bodyWeightKG: Double,
+        val bodyWeightKg: Double,
         val heightCm: Int,
         val bodyFatPercent: Double,
         val activityLevel: String,
@@ -57,7 +57,7 @@ object CalibrationUtils {
         //uses key - value pairs similar to json
         val updates = hashMapOf<String,Any>(
             //body stats
-            "bodyWeigthKg" to data.bodyWeightKG,
+            "bodyWeigthKg" to data.bodyWeightKg,
             "heightCm" to data.heightCm,
             "bodyFatPercent" to data.bodyFatPercent,
             //activity level

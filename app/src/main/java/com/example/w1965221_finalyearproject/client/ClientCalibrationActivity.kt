@@ -283,7 +283,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 val calories = (protein * 4) + (carbs * 4)+ (fats*9)
 
                 val calibrationData = CalibrationUtils.ClientCalibrationData(
-                    bodyWeightKG = weight.toDouble(),
+                    bodyWeightKg = weight.toDouble(),
                     heightCm = height.toInt(),
                     bodyFatPercent = bodyFat.toDouble(),
                     activityLevel =activityLevelText ,
@@ -322,7 +322,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 autoPreviewText.text = "Calculated target: $autoCalories kcal"
 
                 val calibrationData = CalibrationUtils.ClientCalibrationData(
-                    bodyWeightKG = weight.toDouble(),
+                    bodyWeightKg = weight.toDouble(),
                     heightCm = height.toInt(),
                     bodyFatPercent = bodyFat.toDouble(),
                     activityLevel = activityLevelText,

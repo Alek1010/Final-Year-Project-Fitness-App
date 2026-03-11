@@ -17,7 +17,7 @@ object WeightGoalUtils {
     )
 
     fun loadWeightGoalProfile(
-        onSucess: (WeightGoalProfile?) -> Unit,
+        onSuccess: (WeightGoalProfile?) -> Unit,
         onFailure:(Exception)-> Unit
     ){
         val currentUser = auth.currentUser
@@ -27,19 +27,37 @@ object WeightGoalUtils {
         }
 
         val uid = currentUser.uid
+        Log.d("WEIGHT_DEBUG", "Loading profile for uid = $uid from collection = $USER_COLLECTION")
 
         db.collection(USER_COLLECTION).document(uid).get()
             .addOnSuccessListener { document ->
-                val bodyWeight = document.getDouble("bodyWeightKg")
-                val weeklyRate = document.getDouble("weeklyRateKg")
-                val goalType = document.getString("goalType")
 
-                if (bodyWeight == null || weeklyRate == null || goalType == null){
-                    onSucess(null)
+                if (!document.exists()) {
+                    Log.d("WEIGHT_DEBUG", "Document does not exist for uid = $uid")
+                    onSuccess(null)
                     return@addOnSuccessListener
                 }
 
-                onSucess(
+                Log.d("WEIGHT_DEBUG", "Raw document data = ${document.data}")
+
+
+                //testing error read as number then convert to double
+                val bodyWeight = document.getDouble("bodyWeigthKg")
+                val weeklyRate = document.getDouble("weeklyRateKg")
+                val goalType = document.getString("goalType")
+
+                Log.d("WEIGHT_DEBUG", "bodyWeightRaw = $bodyWeight")
+                Log.d("WEIGHT_DEBUG", "weeklyRateRaw = $weeklyRate")
+                Log.d("WEIGHT_DEBUG", "goalType = $goalType")
+
+
+
+                if (bodyWeight == null || weeklyRate == null || goalType == null){
+                    onSuccess(null)
+                    return@addOnSuccessListener
+                }
+
+                onSuccess(
                     WeightGoalProfile(
                         bodyWeightKg = bodyWeight,
                         weeklyRateKg = weeklyRate,
