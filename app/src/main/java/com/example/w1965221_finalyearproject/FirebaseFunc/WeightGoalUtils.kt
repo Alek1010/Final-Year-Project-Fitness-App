@@ -42,8 +42,8 @@ object WeightGoalUtils {
 
 
                 //testing error read as number then convert to double
-                val bodyWeight = document.getDouble("bodyWeightKg")
-                val weeklyRate = document.getDouble("weeklyRateKg")
+                val bodyWeight = (document.get("bodyWeightKg") as? Number)?.toDouble()
+                val weeklyRate = (document.get("weeklyRateKg") as? Number)?.toDouble()
                 val goalType = document.getString("goalType")
 
                 Log.d("WEIGHT_DEBUG", "bodyWeightRaw = $bodyWeight")

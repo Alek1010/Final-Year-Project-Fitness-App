@@ -7,7 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.Modifier
+
 import com.example.w1965221_finalyearproject.R
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
@@ -16,7 +16,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import java.text.SimpleDateFormat
 import java.util.*
 import com.example.w1965221_finalyearproject.FirebaseFunc.WeightGoalUtils
+import com.example.w1965221_finalyearproject.FirebaseFunc.WeightLogUtils
 import com.example.w1965221_finalyearproject.calculations.WeightGoalCalculator
+import com.example.w1965221_finalyearproject.client.DailyWeightLog
 import com.github.mikephil.charting.components.XAxis
 import kotlin.math.roundToInt
 
@@ -26,27 +28,11 @@ import kotlin.math.roundToInt
 //compare actual log weight to trajectory
 class WeightProgressActivity : AppCompatActivity() {
 
-    //this class represetns one daily weight log
-    //e.g 07/04/2026
-    //weightKg = 56.4f
-    //weight is logged daily and averge weight for that week is plotted
-    //on the graph
-    data class DailyWeightLog(
-        val date: String,
-        val weightKg: Float
-    )
+
     //stores are daily werighIn while app is open
     //right now only stored in memory
     private val dailyLogs = mutableListOf<DailyWeightLog>()
 
-    //chart uses (x,y) x week number
-    //y bodyweight in kg
-    // users actual logged weight  stores real body weight entries
-    //user logs
-    private val actualWeights = mutableListOf<Entry>()
-
-    //assumes one weight entry per week
-    private var currentWeek = 1f
 
     //load from firebase during calibration
     private var startWeightKg =0.0
@@ -85,22 +71,13 @@ class WeightProgressActivity : AppCompatActivity() {
                 //show in ui
                 tvCurrentWeight.text = "current weight: ${startWeightKg}kg"
                 tvRate.text = "Rate: ${weeklyRateKg} kg/week"
-                //add starting point to chart
-                dailyLogs.clear()
-                //starting weight as first entry
-                val today = getTodayString()
-                dailyLogs.add(
-                    DailyWeightLog(
-                        date = today,
-                        weightKg = startWeightKg.toFloat()
-                    )
+
+                //once profile loaded load all daily weight logs from firebase
+                refreshWeightLogs(
+                    chart = chart,
+                    historyText = historyText,
+                    tvCurrentWeight = tvCurrentWeight
                 )
-                //refresh visibility to saved daily weights
-                rebuildHistory(historyText)
-
-                //redraw graph
-                updateChart(chart)
-
             },
             onFailure = {e->
                 Toast.makeText(this,"Failed to load profile: ${e.message}",Toast.LENGTH_LONG).show()
@@ -132,40 +109,81 @@ class WeightProgressActivity : AppCompatActivity() {
         // user logs new daily weight
         btnAddWeight.setOnClickListener{
             //read todays enterd weight from the input box
-            val weight = weightInput.text.toString().toFloatOrNull()
+            val weight = weightInput.text.toString().toDoubleOrNull()
             //validate
             if(weight == null){
                 Toast.makeText(this,"enter a valid weight",Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             //get todays date as a string
-            val today = getTodayString()
+            val todayStorageDate = getTodayStorageDate()
 
-            //check if there is alreafy an entry for today
-            //if so replace existing one with new one
-            val existingIndex = dailyLogs.indexOfFirst { it.date == today }
+            WeightLogUtils.saveDailyWeightLog(
+                date = todayStorageDate,
+                weightKg = weight,
+                onSuccess = {
+                    Toast.makeText(this, "Today's weight saved", Toast.LENGTH_SHORT).show()
 
-            if (existingIndex != -1){
-                //update todays existing entry
-                dailyLogs[existingIndex] = DailyWeightLog(today, weight)
-                Toast.makeText(this,"today's weight updated", Toast.LENGTH_SHORT).show()
-            }else{
-                //add brand new daily entry
-                dailyLogs.add(DailyWeightLog(today,weight))
-                Toast.makeText(this,"todays weight added", Toast.LENGTH_SHORT).show()
-            }
+                    weightInput.text.clear()
 
-            // update current weight text to the latest value user entered
-            tvCurrentWeight.text = "Current weight: ${format1dp(weight.toDouble())} kg"
-
-            //rebuild the visioble history list
-            rebuildHistory(historyText)
-
-            updateChart(chart)
-            weightInput.text.clear()
+                    refreshWeightLogs(
+                        chart = chart,
+                        historyText = historyText,
+                        tvCurrentWeight = tvCurrentWeight
+                    )
+                },
+                onFailure = { e ->
+                    Toast.makeText(
+                        this,
+                        "Failed to save weight: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
 
         }
     }
+
+    //roloads all daily logs from and refreshs ui
+    private fun refreshWeightLogs(
+        chart: LineChart,
+        historyText: TextView,
+        tvCurrentWeight: TextView
+    ){
+        WeightLogUtils.loadDailyWeightLogs(
+            onSuccess = { logs ->
+                dailyLogs.clear()
+                dailyLogs.addAll(logs)
+
+                 //If Firebase has no saved daily logs yet,
+                 //show the profile starting weight as the current value.
+                if (dailyLogs.isEmpty()) {
+                    tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
+                } else {
+
+                     //The latest log is the current bodyweight shown on screen.
+                     //Because date is yyyy-MM-dd, maxByOrNull works correctly.
+
+                    val latestLog = dailyLogs.maxByOrNull { it.date }
+                    if (latestLog != null) {
+                        tvCurrentWeight.text =
+                            "Current weight: ${format1dp(latestLog.weightKg)} kg"
+                    }
+                }
+
+                rebuildHistory(historyText)
+                updateChart(chart)
+            },
+            onFailure = { e ->
+                Toast.makeText(
+                    this,
+                    "Failed to load weight logs: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        )
+    }
+
     //chart set up
     //configuers line chart
     private fun setupChart(chart: LineChart) {
@@ -174,7 +192,7 @@ class WeightProgressActivity : AppCompatActivity() {
         chart.setNoDataText("no weight data yet")//message if no data
         chart.xAxis.position = XAxis.XAxisPosition.BOTTOM// put xaxis at bottom
         chart.xAxis.granularity = 1f //granularity show axis in whole weeks
-        chart.xAxis.axisMaximum = 1f //start from week 1
+        chart.xAxis.axisMinimum = 1f //start from week 1
     }
     //rebuild chart using actual loged weight
     //target weight line based on firebase rate+ chose duration
@@ -259,8 +277,24 @@ class WeightProgressActivity : AppCompatActivity() {
     }
 
     //return todays date as a string
-    private fun getTodayString():String{
-        return SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+    private fun getTodayStorageDate(): String {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    }
+
+    //converts stored data formate to user friendly display formate
+    private fun storageDateToDisplayDate(storageDate: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val parsedDate = inputFormat.parse(storageDate)
+            if (parsedDate != null) {
+                outputFormat.format(parsedDate)
+            } else {
+                storageDate
+            }
+        } catch (e: Exception) {
+            storageDate
+        }
     }
 
     //helper function round a num to 1 decimal
@@ -269,5 +303,5 @@ class WeightProgressActivity : AppCompatActivity() {
         return ((value * 10).roundToInt() / 10.0).toString()
     }
 
-    
+
 }
