@@ -57,7 +57,7 @@ object CalibrationUtils {
         //uses key - value pairs similar to json
         val updates = hashMapOf<String,Any>(
             //body stats
-            "bodyWeigthKg" to data.bodyWeightKg,
+            "bodyWeightKg" to data.bodyWeightKg,
             "heightCm" to data.heightCm,
             "bodyFatPercent" to data.bodyFatPercent,
             //activity level
