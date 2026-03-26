@@ -55,7 +55,7 @@ object WeightLogUtils {
             return
         }
 
-        db.collection("users")
+        db.collection("user")
             .document(uid)
             .collection("weightLogs")
             .get()
@@ -81,6 +81,62 @@ object WeightLogUtils {
             }
     }
 
+
+     //Save weight progress screen settings into the main user document.
+      //These values should persist when leaving and reopening the page.
+
+    fun saveWeightProgressSettings(
+        durationWeeks: Int,
+        goalWeightKg: Double,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            onFailure(Exception("User not logged in"))
+            return
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "weightProgressDurationWeeks" to durationWeeks,
+            "weightProgressGoalWeightKg" to goalWeightKg
+        )
+
+        db.collection("user")
+            .document(uid)
+            .update(updates)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onFailure(e) }
+    }
+
+    //load saved duration + saved goal weight from the main user document
+    fun loadWeightProgressSettings(
+    onSuccess: (Int, Double?) -> Unit,
+    onFailure: (Exception) -> Unit
+    ) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            onFailure(Exception("User not logged in"))
+            return
+        }
+
+        db.collection("user")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val durationWeeks =
+                    (document.get("weightProgressDurationWeeks") as? Number)?.toInt() ?: 12
+
+                val goalWeightKg =
+                    (document.get("weightProgressGoalWeightKg") as? Number)?.toDouble()
+
+                onSuccess(durationWeeks, goalWeightKg)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
     //optional helper for later if want to delete or edit
     fun deleteDailyWeightLog(
         date: String,
@@ -93,7 +149,7 @@ object WeightLogUtils {
             return
         }
 
-        db.collection("users")
+        db.collection("user")
             .document(uid)
             .collection("weightLogs")
             .document(date)

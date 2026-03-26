@@ -60,62 +60,96 @@ class WeightProgressActivity : AppCompatActivity() {
 
         //load the starting wright and weekly rate from fire base
         WeightGoalUtils.loadWeightGoalProfile(
-            onSuccess = {profile ->
-                if (profile == null){
-                    Toast.makeText(this,"no goal progfile found",Toast.LENGTH_SHORT).show()
+            onSuccess = { profile ->
+                if (profile == null) {
+                    Toast.makeText(this, "No goal profile found", Toast.LENGTH_SHORT).show()
                     return@loadWeightGoalProfile
                 }
-                //store firebase values locallu inside the activity
+
                 startWeightKg = profile.bodyWeightKg
                 weeklyRateKg = profile.weeklyRateKg
-                //show in ui
-                tvCurrentWeight.text = "current weight: ${startWeightKg}kg"
-                tvRate.text = "Rate: ${weeklyRateKg} kg/week"
 
-                //once profile loaded load all daily weight logs from firebase
-                refreshWeightLogs(
-                    chart = chart,
-                    historyText = historyText,
-                    tvCurrentWeight = tvCurrentWeight
+                tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
+                tvRate.text = "Rate: ${format1dp(weeklyRateKg)} kg/week"
+
+                // Load saved duration + saved goal weight first
+                WeightLogUtils.loadWeightProgressSettings(
+                    onSuccess = { savedDurationWeeks, savedGoalWeightKg ->
+                        durationWeeks = savedDurationWeeks
+                        durationInput.setText(durationWeeks.toString())
+
+                        if (savedGoalWeightKg != null) {
+                            tvGoalWeight.text = "Goal weight: ${format1dp(savedGoalWeightKg)} kg"
+                        }
+
+                        // Then load all saved daily logs
+                        refreshWeightLogs(
+                            chart = chart,
+                            historyText = historyText,
+                            tvCurrentWeight = tvCurrentWeight
+                        )
+                    },
+                    onFailure = {
+                        // Even if settings fail, still load logs
+                        refreshWeightLogs(
+                            chart = chart,
+                            historyText = historyText,
+                            tvCurrentWeight = tvCurrentWeight
+                        )
+                    }
                 )
             },
-            onFailure = {e->
-                Toast.makeText(this,"Failed to load profile: ${e.message}",Toast.LENGTH_LONG).show()
+            onFailure = { e ->
+                Toast.makeText(this, "Failed to load profile: ${e.message}", Toast.LENGTH_LONG).show()
             }
         )
 
         //user enters number of weeks it should run
-        btnSetGoal.setOnClickListener{
+        btnSetGoal.setOnClickListener {
             val weeks = durationInput.text.toString().toIntOrNull()
 
             if (weeks == null || weeks <= 0) {
-                Toast.makeText(this,"enter a Valid number of weeks ",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Enter a valid number of weeks", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             durationWeeks = weeks
-            //use calculator to wokrout final goal weight
+
             val result = WeightGoalCalculator.calculateGoalWeight(
                 startWeightKg = startWeightKg,
                 weeklyRateKg = weeklyRateKg,
                 durationWeeks = durationWeeks
             )
 
-            tvGoalWeight.text = "Goal weight: ${result.finalGoalWeightKg}kg"
-            //rebuild chart so red line matches new duration
+            tvGoalWeight.text = "Goal weight: ${format1dp(result.finalGoalWeightKg)} kg"
+
+            WeightLogUtils.saveWeightProgressSettings(
+                durationWeeks = durationWeeks,
+                goalWeightKg = result.finalGoalWeightKg,
+                onSuccess = {
+                    Toast.makeText(this, "Goal settings saved", Toast.LENGTH_SHORT).show()
+                },
+                onFailure = { e ->
+                    Toast.makeText(
+                        this,
+                        "Failed to save goal settings: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+
             updateChart(chart)
         }
 
         // user logs new daily weight
-        btnAddWeight.setOnClickListener{
-            //read todays enterd weight from the input box
+        btnAddWeight.setOnClickListener {
             val weight = weightInput.text.toString().toDoubleOrNull()
-            //validate
-            if(weight == null){
-                Toast.makeText(this,"enter a valid weight",Toast.LENGTH_SHORT).show()
+
+            if (weight == null) {
+                Toast.makeText(this, "Enter a valid weight", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            //get todays date as a string
+
             val todayStorageDate = getTodayStorageDate()
 
             WeightLogUtils.saveDailyWeightLog(
@@ -140,7 +174,6 @@ class WeightProgressActivity : AppCompatActivity() {
                     ).show()
                 }
             )
-
         }
     }
 
@@ -149,21 +182,15 @@ class WeightProgressActivity : AppCompatActivity() {
         chart: LineChart,
         historyText: TextView,
         tvCurrentWeight: TextView
-    ){
+    ) {
         WeightLogUtils.loadDailyWeightLogs(
             onSuccess = { logs ->
                 dailyLogs.clear()
                 dailyLogs.addAll(logs)
 
-                 //If Firebase has no saved daily logs yet,
-                 //show the profile starting weight as the current value.
                 if (dailyLogs.isEmpty()) {
                     tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
                 } else {
-
-                     //The latest log is the current bodyweight shown on screen.
-                     //Because date is yyyy-MM-dd, maxByOrNull works correctly.
-
                     val latestLog = dailyLogs.maxByOrNull { it.date }
                     if (latestLog != null) {
                         tvCurrentWeight.text =
@@ -267,12 +294,15 @@ class WeightProgressActivity : AppCompatActivity() {
     //updates the text history shown on screen
     //e.g 07/04/2026: 56.4
     //newest shown first
-    private fun rebuildHistory(historyText: TextView){
+    private fun rebuildHistory(historyText: TextView) {
         val sortedLogs = dailyLogs.sortedByDescending { it.date }
         val history = StringBuilder()
-        for(log in sortedLogs){
-            history.append("${log.date}: ${format1dp(log.weightKg.toDouble())} kg\n")
+
+        for (log in sortedLogs) {
+            val displayDate = storageDateToDisplayDate(log.date)
+            history.append("$displayDate: ${format1dp(log.weightKg)} kg\n")
         }
+
         historyText.text = history.toString()
     }
 
