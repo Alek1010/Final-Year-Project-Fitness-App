@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.w1965221_finalyearproject.client.ExerciseLog
 import com.example.w1965221_finalyearproject.client.WorkoutDay
 import com.example.w1965221_finalyearproject.client.WorkoutProgram
+import com.example.w1965221_finalyearproject.client.WorkoutSession
 
 
 //handes firebase operations to the workout progams
@@ -314,4 +315,93 @@ object WorkoutProgramUtils {
                 onFailure(e)
             }
     }
+
+    //load all workout session documents for the current user
+    //used to populate dropdown of previously logged workout
+    fun loadWorkoutSessions(
+        onSuccess: (List<WorkoutSession>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            onFailure(Exception("User not logged in"))
+            return
+        }
+
+        db.collection("user")
+            .document(uid)
+            .collection("workoutLogs")
+            .get()
+            .addOnSuccessListener { result ->
+                val sessions = result.documents.mapNotNull { document ->
+                    val date = document.getString("date")
+                    val workoutName = document.getString("workoutName")
+                    val programId = document.getString("programId")
+
+                    if (date != null && workoutName != null && programId != null) {
+                        WorkoutSession(
+                            id = document.id,
+                            date = date,
+                            workoutName = workoutName,
+                            programId = programId
+                        )
+                    } else {
+                        null
+                    }
+                }.sortedByDescending { it.date }
+
+                onSuccess(sessions)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    //load all exercise logs inside one
+    //user/uid/workoutlogs/sessionid/exerciseLog
+    fun loadExerciseLogsForSession(
+        sessionId: String,
+        onSuccess: (List<ExerciseLog>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            onFailure(Exception("User not logged in"))
+            return
+        }
+
+        db.collection("user")
+            .document(uid)
+            .collection("workoutLogs")
+            .document(sessionId)
+            .collection("exerciseLogs")
+            .get()
+            .addOnSuccessListener { result ->
+                val logs = result.documents.mapNotNull { document ->
+                    val exerciseName = document.getString("exerciseName")
+                    val setNumber = (document.get("setNumber") as? Number)?.toInt()
+                    val reps = (document.get("reps") as? Number)?.toInt()
+                    val weightKg = (document.get("weightKg") as? Number)?.toDouble()
+
+                    if (exerciseName != null && setNumber != null && reps != null && weightKg != null) {
+                        ExerciseLog(
+                            exerciseName = exerciseName,
+                            setNumber = setNumber,
+                            reps = reps,
+                            weightKg = weightKg
+                        )
+                    } else {
+                        null
+                    }
+                }.sortedWith(
+                    compareBy<ExerciseLog> { it.exerciseName }.thenBy { it.setNumber }
+                )
+
+                onSuccess(logs)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+
+}
 }
