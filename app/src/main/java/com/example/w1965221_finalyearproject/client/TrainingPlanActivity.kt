@@ -15,16 +15,17 @@ import java.util.Locale
 
 
 //training plan screen
-//uses recyclerView bescause training sessions are naturally a list of excersies
-//placeholder data is sued in this will later come from a data base
+//user can select from pre made workout programs
+//view the exercises in the program
+//create their own program and log any sets and reps
 class TrainingPlanActivity : AppCompatActivity(){
-
+    //holds current selected program from the spinner
     private var selectedProgram: WorkoutProgram? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_training_plan)
-
+        //ui refrences
         val spinnerPrograms = findViewById<Spinner>(R.id.spinnerPrograms)
         val btnSaveProgram = findViewById<Button>(R.id.btnSaveProgram)
         val tvProgramPreview = findViewById<TextView>(R.id.tvProgramPreview)
@@ -34,18 +35,20 @@ class TrainingPlanActivity : AppCompatActivity(){
         val etReps = findViewById<EditText>(R.id.etReps)
         val etWeight = findViewById<EditText>(R.id.etWeight)
         val btnSaveLog = findViewById<Button>(R.id.btnSaveLog)
-
+        //load pre made programs
         val programs = PreMadePrograms.getPrograms()
-        val programNames = programs.map { it.name }
-
+        val programNames = programs.map { it.name }//extract program name for drop down
+        //creat spinner adapter drop down list
         val spinnerAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
             programNames
         )
+        //style
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        //attach adptor to spinner
         spinnerPrograms.adapter = spinnerAdapter
-
+        //when program selected store selected program display exercises in the preview text
         spinnerPrograms.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -53,13 +56,14 @@ class TrainingPlanActivity : AppCompatActivity(){
                 position: Int,
                 id: Long
             ) {
-                selectedProgram = programs[position]
-                tvProgramPreview.text = buildProgramPreview(selectedProgram!!)
+                selectedProgram = programs[position]//get program from list
+                tvProgramPreview.text = buildProgramPreview(selectedProgram!!) // show full program
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {}//do nothing
         }
-
+        //save selected program button
+        //saves only the program id to firebase
         btnSaveProgram.setOnClickListener {
             val program = selectedProgram
             if (program == null) {
@@ -77,14 +81,14 @@ class TrainingPlanActivity : AppCompatActivity(){
                 }
             )
         }
-
+        //save exericse log button
         btnSaveLog.setOnClickListener {
             val program = selectedProgram
             if (program == null) {
                 Toast.makeText(this, "Select a program first", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
+            //read inputfields
             val exerciseName = etExerciseName.text.toString().trim()
             val setNumber = etSetNumber.text.toString().toIntOrNull()
             val reps = etReps.text.toString().toIntOrNull()
@@ -122,7 +126,7 @@ class TrainingPlanActivity : AppCompatActivity(){
             )
         }
     }
-
+    //builds readable text preview of the selected program
     private fun buildProgramPreview(program: WorkoutProgram): String {
         val builder = StringBuilder()
         builder.append(program.name).append("\n\n")
