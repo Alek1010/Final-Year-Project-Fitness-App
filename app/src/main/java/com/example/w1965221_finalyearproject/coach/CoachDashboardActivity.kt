@@ -24,7 +24,19 @@ class CoachDashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_coach_dashboard)
 
         val welcomeText = findViewById<TextView>(R.id.tvWelcome)
+        val coachCodeText = findViewById<TextView>(R.id.tvCoachCode)
+
         UserUtils.loadUserName(welcomeText)
+
+        //load coach code from the firebase so coach can share it with client
+        UserUtils.loadCoachCode(
+            onSuccess = {code ->
+                coachCodeText.text = "your coach code: ${code ?: "-"}"
+            },
+            onFailure = {
+                coachCodeText.text = "Your coach code: -"
+            }
+        )
 
         //find logout button from xml
         val logoutButton = findViewById<Button>(R.id.btnLogout)

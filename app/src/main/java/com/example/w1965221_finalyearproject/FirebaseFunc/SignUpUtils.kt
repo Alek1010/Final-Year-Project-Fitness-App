@@ -21,6 +21,15 @@ object SignUpUtils {
     private val db by lazy { FirebaseFirestore.getInstance() }
     private const val USER_COLLECTION = "user"
 
+    //generate coach code e.g AB12CD
+    //client enter this to get linked to a coach
+    private fun generateCoachCode(): String{
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+        return (1..6)
+            .map { chars.random() }
+            .joinToString ("")
+    }
+
     //create account + create firestore profile
     //activty needs for toast +start acrtivity
     //full name saved into firestore
@@ -41,12 +50,17 @@ object SignUpUtils {
                 val uid = result.user?.uid ?:return@addOnSuccessListener
 
                 //build firestroe progile doc
-                val userDoc = hashMapOf(
+                val userDoc = hashMapOf<String, Any>(
                     "fullName" to fullName,
                     "email" to email,
                     "role" to role,
                     "createdAt" to Timestamp.now()
                 )
+
+                //only coaches need code
+                if(role=="coach"){
+                    userDoc["coachCode"] = generateCoachCode()
+                }
 
                 //save profile in firestore
                 db.collection(USER_COLLECTION).document(uid).set(userDoc)

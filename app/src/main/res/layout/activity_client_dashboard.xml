@@ -61,6 +61,20 @@
             android:layout_marginBottom="24dp"
             />
 
+            <TextView
+                android:id="@+id/tvCoachLinkStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No coach linked"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btnLinkCoach"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Link to Coach"
+                android:layout_marginBottom="12dp" />
+
         <Button
             android:id="@+id/btnTrainingPlan"
             android:layout_width="match_parent"
