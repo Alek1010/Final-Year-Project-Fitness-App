@@ -282,5 +282,39 @@ object UserUtils{
             }
     }
 
+    //coach updates a clients macro target
+    //coah edits protein, fats and carbs
+    //cal are auto recalculated from those macros
+    //this works regardless if the client uses auto or manaual mode
+    //firebase fields updated are
+    //targetProtein
+    //targetCarbs
+    //targetFats
+    //targetCalories
+    fun updateClientMacros(
+        clientUid: String,
+        protein:Int,
+        carbs:Int,
+        fats: Int,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ){
+        //recalc calories from macors
+        val calories  = (protein*4)+(carbs*4)+(fats*9)
+
+        val updates = hashMapOf<String, Any>(
+            "targetProtein" to protein,
+            "targetCarbs" to carbs,
+            "targetFats" to fats,
+            "targetCalories" to calories
+        )
+
+        db.collection(USER_COLLECTION)
+            .document(clientUid)
+            .update(updates)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener{e -> onFailure(e)}
+    }
+
 
 }

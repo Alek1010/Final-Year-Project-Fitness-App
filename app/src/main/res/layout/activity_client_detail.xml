@@ -21,6 +21,42 @@
         android:text="Client summary"
         android:layout_marginBottom="24dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adjust Client Macros"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/etCoachProtein"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Protein (g)"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etCoachCarbs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Carbs (g)"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etCoachFats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Fats (g)"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/btnSaveClientMacros"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Macros"
+        android:layout_marginTop="12dp" />
+
     <Button
         android:id="@+id/btnViewWeight"
         android:layout_width="match_parent"
