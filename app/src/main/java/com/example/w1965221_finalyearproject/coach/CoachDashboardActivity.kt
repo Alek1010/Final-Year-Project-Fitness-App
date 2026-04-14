@@ -25,6 +25,7 @@ class CoachDashboardActivity : AppCompatActivity() {
 
         val welcomeText = findViewById<TextView>(R.id.tvWelcome)
         val coachCodeText = findViewById<TextView>(R.id.tvCoachCode)
+        val tvOverview = findViewById<TextView>(R.id.tvOverview)
 
         UserUtils.loadUserName(welcomeText)
 
@@ -35,6 +36,16 @@ class CoachDashboardActivity : AppCompatActivity() {
             },
             onFailure = {
                 coachCodeText.text = "Your coach code: -"
+            }
+        )
+
+        //add in the current number of active clients
+        UserUtils.loadCoachClientCount(
+            onSuccess = {count ->
+                tvOverview.text = "current linked clients: $count"
+            },
+            onFailure = {
+                tvOverview.text = "current linked clients: -"
             }
         )
 

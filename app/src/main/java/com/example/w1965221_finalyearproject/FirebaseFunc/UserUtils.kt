@@ -316,5 +316,34 @@ object UserUtils{
             .addOnFailureListener{e -> onFailure(e)}
     }
 
+    //load number of real linked clinets for the current coach
+    //firebase path
+    //user/coachuid/clients
+    //the number shown on the dashboard is the nmber of documents
+    //inside the subcollection
+    fun loadCoachClientCount(
+        onSuccess: (Int) -> Unit,
+        onFailure: (Exception) -> Unit
+    ){
+        val coachUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (coachUid == null){
+            onFailure(Exception("User not logged in"))
+            return
+        }
+
+        db.collection(USER_COLLECTION)
+            .document(coachUid)
+            .collection("clients")
+            .get()
+            .addOnSuccessListener { result ->
+                onSuccess(result.size())
+            }
+            .addOnFailureListener{e ->
+                onFailure(e)
+            }
+
+    }
+
+
 
 }

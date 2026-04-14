@@ -55,12 +55,14 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvOverview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:background="#EEEEEE"
                 android:padding="16dp"
-                android:text="Active Clients: 6\nPrograms Managed: 8\nCheck-ins Today: 2" />
+                android:text="Current linked clients: -"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/btnViewClients"

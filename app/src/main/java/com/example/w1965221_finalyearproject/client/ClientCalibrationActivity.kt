@@ -261,10 +261,6 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            //if (bodyFat.isEmpty()){
-            //    heightInput.error = "enter body fat %"
-            //    return@setOnClickListener
-            //}
 
             if(selectedActivtyId ==-1){
                 Toast.makeText(this,"Selecte activty level",Toast.LENGTH_SHORT).show()
