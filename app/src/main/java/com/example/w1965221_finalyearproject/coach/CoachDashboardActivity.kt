@@ -49,8 +49,6 @@ class CoachDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, ClientListActivity::class.java))
         }
 
-        findViewById<Button>(R.id.btnCreateProgram).setOnClickListener {
-            startActivity(Intent(this, AdjustProgramActivity::class.java))
-        }
+        
     }
 }
