@@ -49,6 +49,6 @@ class CoachDashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, ClientListActivity::class.java))
         }
 
-        
+
     }
 }

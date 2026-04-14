@@ -23,7 +23,7 @@ object CalibrationUtils {
     data class ClientCalibrationData(
         val bodyWeightKg: Double,
         val heightCm: Int,
-        val bodyFatPercent: Double,
+        val bodyFatPercent: Double? = null,
         val activityLevel: String,
 
         val targetMode: String,
@@ -59,7 +59,6 @@ object CalibrationUtils {
             //body stats
             "bodyWeightKg" to data.bodyWeightKg,
             "heightCm" to data.heightCm,
-            "bodyFatPercent" to data.bodyFatPercent,
             //activity level
             "activityLevel" to data.activityLevel,
             //mode of calories entered
@@ -71,6 +70,8 @@ object CalibrationUtils {
         //manual user inserts macros and it is give
         //auto calculates calories and then insers macros based calories
         //so if a field is null no error should error
+        // only save body fat if user actually entered it
+        data.bodyFatPercent?.let { updates["bodyFatPercent"] = it }
         data.targetProtein?.let { updates["targetProtein"] = it }//if exsit add
         data.targetCarbs?.let { updates["targetCarbs"] = it }
         data.targetFats?.let { updates["targetFats"] = it }

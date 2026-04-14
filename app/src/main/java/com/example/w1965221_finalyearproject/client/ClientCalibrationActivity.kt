@@ -67,6 +67,13 @@ class ClientCalibrationActivity : AppCompatActivity() {
             return editText.text.toString().toDoubleOrNull()?:0.0
         }
 
+        // safely read optional decimal values
+        // if blank -> return null instead of crashing
+        fun getNullableDouble(editText: EditText): Double? {
+            val text = editText.text.toString().trim()
+            return if (text.isEmpty()) null else text.toDoubleOrNull()
+        }
+
         //recalculate caloreis and update ui
         fun updateCalories(){
             val protein = getInt(proteinInput)
@@ -131,7 +138,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
         //RUNs the auto calorie calculator snd return calorie value
         fun calculateSelectedAutoCalories(): Int? {
             val weight = getDouble(weightInput)
-            val bodyFat = getDouble(bodyFatInput)
+            val bodyFat = getNullableDouble(bodyFatInput)
             val activityLevel = getSelectedActivityLevel() ?: return null
 
             //calculate all 7 targets
@@ -237,7 +244,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
             val weight = weightInput.text.toString().trim()
             val height = heightInput.text.toString().trim()
-            val bodyFat = bodyFatInput.text.toString().trim()
+            val bodyFat = getNullableDouble(bodyFatInput)
             val selectedActivtyId = rgActivityLevel.checkedRadioButtonId
             val activityLevelText = getSelectedActivityLevelText() ?: "unknown"
             val goalType = getSelectedGoalType()
@@ -254,10 +261,10 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (bodyFat.isEmpty()){
-                heightInput.error = "enter body fat %"
-                return@setOnClickListener
-            }
+            //if (bodyFat.isEmpty()){
+            //    heightInput.error = "enter body fat %"
+            //    return@setOnClickListener
+            //}
 
             if(selectedActivtyId ==-1){
                 Toast.makeText(this,"Selecte activty level",Toast.LENGTH_SHORT).show()
@@ -285,7 +292,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 val calibrationData = CalibrationUtils.ClientCalibrationData(
                     bodyWeightKg = weight.toDouble(),
                     heightCm = height.toInt(),
-                    bodyFatPercent = bodyFat.toDouble(),
+                    bodyFatPercent = bodyFat,
                     activityLevel =activityLevelText ,
 
                     targetMode = "manual",
@@ -324,7 +331,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
                 val calibrationData = CalibrationUtils.ClientCalibrationData(
                     bodyWeightKg = weight.toDouble(),
                     heightCm = height.toInt(),
-                    bodyFatPercent = bodyFat.toDouble(),
+                    bodyFatPercent = bodyFat,
                     activityLevel = activityLevelText,
                     targetMode = "auto",
                     targetCalories = autoCalories,

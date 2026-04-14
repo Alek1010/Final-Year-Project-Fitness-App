@@ -40,11 +40,15 @@ object CalorieCalculator {
     //output object containainig maintanence and the 6 other possible options
     fun calculateAllTargets(
         weightKg: Double,
-        bodyFatPercent: Double,
+        bodyFatPercent: Double?,
         activityLevel: ActivityLevel
     ):CalorieTargets{
-        //lean body nass lbm
-        val leanBodyMassKg = weightKg *(1.0 - bodyFatPercent /100.0)
+        //lean body nass lbm using nullable
+        val leanBodyMassKg = if (bodyFatPercent != null) {
+            weightKg * (1.0 - bodyFatPercent / 100.0)
+        } else {
+            weightKg
+        }
 
         //bmr katch mcardle
         //bmr 370 + 21.6 * LBM
