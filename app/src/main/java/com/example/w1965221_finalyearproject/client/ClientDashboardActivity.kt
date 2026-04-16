@@ -10,6 +10,7 @@ import com.example.w1965221_finalyearproject.R
 import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
 import android.app.AlertDialog
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 
 //client home screen / nav hub
@@ -24,7 +25,7 @@ class ClientDashboardActivity : AppCompatActivity(){
         setContentView(R.layout.activity_client_dashboard)
 
         val overviewText = findViewById<TextView>(R.id.tvOverView)
-
+        val btnProfile = findViewById<ImageButton>(R.id.btnProfile)
         //welcome text to see the user who logs in
         val welcomeText = findViewById<TextView>(R.id.tvWelcome)
         val tvCoachLinkStatus = findViewById<TextView>(R.id.tvCoachLinkStatus)
@@ -83,7 +84,12 @@ class ClientDashboardActivity : AppCompatActivity(){
 
 
 
-        //nav to training plan recyler based excerise list
+        //navigate back to calibration page
+        btnProfile.setOnClickListener {
+            startActivity(Intent(this, ClientCalibrationActivity::class.java))
+        }
+
+        //nav to training plan
         findViewById<Button>(R.id.btnTrainingPlan).setOnClickListener {
             startActivity(Intent(this, TrainingPlanActivity::class.java))
         }
