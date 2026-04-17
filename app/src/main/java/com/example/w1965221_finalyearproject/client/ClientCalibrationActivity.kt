@@ -186,7 +186,6 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
 
 
-
         //one shared watcher fro all three feilds
         val watcher = object : TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -238,6 +237,74 @@ class ClientCalibrationActivity : AppCompatActivity() {
         rgActivityLevel.setOnCheckedChangeListener{_,_->
             updateAutoPreview()
         }
+
+        // if calibration data already exists, load it and prefill the fields
+        CalibrationUtils.loadClientCalibration(
+            onSuccess = { existingData ->
+                if (existingData == null) return@loadClientCalibration
+
+                //basic body stats
+                existingData.bodyWeightKg?.let {
+                    weightInput.setText(it.toString())
+                }
+
+                existingData.heightCm?.let {
+                    heightInput.setText(it.toString())
+                }
+
+                existingData.bodyFatPercent?.let {
+                    bodyFatInput.setText(it.toString())
+                }
+
+                //activity level
+                when (existingData.activityLevel) {
+                    "sedentary" -> rgActivityLevel.check(R.id.rbSedentary)
+                    "light" -> rgActivityLevel.check(R.id.rbLightlyActive)
+                    "moderate" -> rgActivityLevel.check(R.id.rbModerate)
+                    "very_active" -> rgActivityLevel.check(R.id.rbVeryActive)
+                }
+
+                // --- target mode ---
+                when (existingData.targetMode) {
+                    "manual" -> rgTargetMode.check(R.id.rbManual)
+                    "auto" -> rgTargetMode.check(R.id.rbAuto)
+                }
+
+                //manual macros
+                existingData.targetProtein?.let {
+                    proteinInput.setText(it.toString())
+                }
+
+                existingData.targetCarbs?.let {
+                    carbsInput.setText(it.toString())
+                }
+
+                existingData.targetFats?.let {
+                    fatsInput.setText(it.toString())
+                }
+
+                //goal type
+                when (existingData.goalType) {
+                    "maintain" -> rgGaol.check(R.id.rbMaintain)
+                    "lose" -> rgGaol.check(R.id.rbLose)
+                    "gain" -> rgGaol.check(R.id.rbGain)
+                }
+
+                //weekly rate
+                when (existingData.weeklyRateKg) {
+                    -0.25, 0.25 -> rgRate.check(R.id.rbMild)
+                    -0.5, 0.5 -> rgRate.check(R.id.rbStandard)
+                    -1.0, 1.0 -> rgRate.check(R.id.rbExtreme)
+                }
+
+                // refresh UI after values are inserted
+                updateCalories()
+                updateAutoPreview()
+            },
+            onFailure = { e ->
+                Toast.makeText(this, "Failed to load saved values: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
 
         //nav to dashboard
         finishbutton.setOnClickListener{

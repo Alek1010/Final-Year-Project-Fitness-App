@@ -93,4 +93,64 @@ object CalibrationUtils {
                 Toast.makeText(activity,"saved failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
+
+    //holds existing calibration values loaded back from firebase
+    //so they can be shown again in the calibration stage
+    data class ExistingCalibrationData(
+        val bodyWeightKg: Double? = null,
+        val heightCm: Int? = null,
+        val bodyFatPercent: Double? = null,
+        val activityLevel: String? = null,
+        val targetMode: String? = null,
+        val targetProtein: Int? = null,
+        val targetCarbs: Int? = null,
+        val targetFats: Int? = null,
+        val goalType: String? = null,
+        val weeklyRateKg: Double? = null
+    )
+
+    //loads current users saved calibration valies from
+    //firebase when reopening calibration screen
+    //from profile page
+    fun loadClientCalibration(
+        onSuccess: (ExistingCalibrationData?) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            onFailure(Exception("No logged in user found"))
+            return
+        }
+
+        val uid = currentUser.uid
+
+        db.collection(USER_COLLECTION)
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    onSuccess(null)
+                    return@addOnSuccessListener
+                }
+
+                val data = ExistingCalibrationData(
+                    bodyWeightKg = (document.get("bodyWeightKg") as? Number)?.toDouble(),
+                    heightCm = (document.get("heightCm") as? Number)?.toInt(),
+                    bodyFatPercent = (document.get("bodyFatPercent") as? Number)?.toDouble(),
+                    activityLevel = document.getString("activityLevel"),
+                    targetMode = document.getString("targetMode"),
+                    targetProtein = (document.get("targetProtein") as? Number)?.toInt(),
+                    targetCarbs = (document.get("targetCarbs") as? Number)?.toInt(),
+                    targetFats = (document.get("targetFats") as? Number)?.toInt(),
+                    goalType = document.getString("goalType"),
+                    weeklyRateKg = (document.get("weeklyRateKg") as? Number)?.toDouble()
+                )
+
+                onSuccess(data)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
 }
