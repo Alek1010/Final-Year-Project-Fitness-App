@@ -17,19 +17,24 @@ object WorkoutProgramUtils {
 
     //save the users selected workout program id
     //user/{uid} slectedprogramId:"upper_lower_4day"
+    //save seleced program for a user
+    //if useruid is null the current user is logged in
+    //if useruid is provided coach saves the program for that user
     fun saveSelectedProgram(
         programId: String,
+        userUid:String? = null,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
+        val targetUid = userUid ?: auth.currentUser?.uid
+
+        if (targetUid == null) {
             onFailure(Exception("User not logged in"))
             return
         }
-        //update only the selectedprogramid field in the user document
+
         db.collection("user")
-            .document(uid)
+            .document(targetUid)
             .update("selectedProgramId", programId)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onFailure(e) }
@@ -41,17 +46,19 @@ object WorkoutProgramUtils {
     //only id stored in firebase
     //then we match it to the local pre made programs
     fun loadSelectedProgram(
+        userUid: String? = null,
         onSuccess: (String?) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
+        val targetUid = userUid ?: auth.currentUser?.uid
+
+        if (targetUid == null) {
             onFailure(Exception("User not logged in"))
             return
         }
 
         db.collection("user")
-            .document(uid)
+            .document(targetUid)
             .get()
             .addOnSuccessListener { document ->
                 val programId = document.getString("selectedProgramId")
@@ -108,21 +115,27 @@ object WorkoutProgramUtils {
             .addOnFailureListener { e -> onFailure(e) }
     }
 
+
+
     //save full custome workout program created by user
     //user/uid/customePrograms/programId/days/dayIndex
+    // save full custom workout program created by user
+    // if userUid is null -> save under current logged-in user
+    // if userUid is passed -> save under that specific user's customPrograms
     fun saveCustomProgram(
         program: WorkoutProgram,
+        userUid: String? = null,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
+        val targetUid = userUid ?: auth.currentUser?.uid
+        if (targetUid == null) {
             onFailure(Exception("User not logged in"))
             return
         }
 
         val programRef = db.collection("user")
-            .document(uid)
+            .document(targetUid)
             .collection("customPrograms")
             .document(program.id)
 
@@ -205,17 +218,19 @@ object WorkoutProgramUtils {
     //load all custom programs ceated by user
     //reads main program document, each saved day, eacch days exercices
     fun loadCustomPrograms(
+        userUid: String? = null,
         onSuccess: (List<WorkoutProgram>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
+        val targetUid = userUid ?: auth.currentUser?.uid
+
+        if (targetUid == null) {
             onFailure(Exception("User not logged in"))
             return
         }
 
         db.collection("user")
-            .document(uid)
+            .document(targetUid)
             .collection("customPrograms")
             .get()
             .addOnSuccessListener { programResult ->
@@ -234,7 +249,7 @@ object WorkoutProgramUtils {
                     val programName = programDoc.getString("name") ?: "Custom Program"
 
                     db.collection("user")
-                        .document(uid)
+                        .document(targetUid)
                         .collection("customPrograms")
                         .document(programId)
                         .collection("days")

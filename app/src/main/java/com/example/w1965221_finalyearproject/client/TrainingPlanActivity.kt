@@ -25,6 +25,8 @@ class TrainingPlanActivity : AppCompatActivity() {
 
     // All previously saved workout sessions
     private val workoutSessions = mutableListOf<WorkoutSession>()
+    //if not null coach is editing for that user
+    private var viewedClientUid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,33 +49,34 @@ class TrainingPlanActivity : AppCompatActivity() {
         val spinnerWorkoutHistory = findViewById<Spinner>(R.id.spinnerWorkoutHistory)
         val tvWorkoutHistoryPreview = findViewById<TextView>(R.id.tvWorkoutHistoryPreview)
 
-        /**
-         * Load pre-made programs first.
-         */
+        //read intent extra from the client detailed activity
+        viewedClientUid = intent.getStringExtra("client_uid")
+
+        //Load pre-made programs first.
         allPrograms.clear()
         allPrograms.addAll(PreMadePrograms.getPrograms())
 
-        /**
-         * Then load custom programs and combine them into one spinner.
-         */
+
+        //Then load custom programs and combine them into one spinner.
         WorkoutProgramUtils.loadCustomPrograms(
+            userUid = viewedClientUid,
             onSuccess = { customPrograms ->
                 allPrograms.addAll(customPrograms)
                 setupProgramSpinner(spinnerPrograms, tvProgramPreview)
+                applySavedSelectedProgram(spinnerPrograms)
             },
             onFailure = {
                 setupProgramSpinner(spinnerPrograms, tvProgramPreview)
+                applySavedSelectedProgram(spinnerPrograms)
             }
         )
 
-        /**
-         * Load previously saved workout sessions into the history dropdown.
-         */
+
+        //Load previously saved workout sessions into the history dropdown.
         loadWorkoutHistory(spinnerWorkoutHistory, tvWorkoutHistoryPreview)
 
-        /**
-         * Open dialog for creating a custom program.
-         */
+
+        //Open dialog for creating a custom program.
         btnCreateCustom.setOnClickListener {
             showCreateCustomProgramDialog(
                 spinnerPrograms = spinnerPrograms,
@@ -81,9 +84,8 @@ class TrainingPlanActivity : AppCompatActivity() {
             )
         }
 
-        /**
-         * Save selected program ID to Firebase.
-         */
+
+         //Save selected program ID to Firebase.
         btnSaveProgram.setOnClickListener {
             val program = selectedProgram
             if (program == null) {
@@ -93,6 +95,7 @@ class TrainingPlanActivity : AppCompatActivity() {
 
             WorkoutProgramUtils.saveSelectedProgram(
                 programId = program.id,
+                userUid = viewedClientUid,
                 onSuccess = {
                     Toast.makeText(this, "Program saved", Toast.LENGTH_SHORT).show()
                 },
@@ -102,9 +105,8 @@ class TrainingPlanActivity : AppCompatActivity() {
             )
         }
 
-        /**
-         * Save one exercise log into Firebase.
-         */
+
+        //Save one exercise log into Firebase.
         btnSaveLog.setOnClickListener {
             val program = selectedProgram
             if (program == null) {
@@ -154,9 +156,8 @@ class TrainingPlanActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Sets up the program spinner with all available programs.
-     */
+
+     //Sets up the program spinner with all available programs.
     private fun setupProgramSpinner(
         spinnerPrograms: Spinner,
         tvProgramPreview: TextView
@@ -186,9 +187,8 @@ class TrainingPlanActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Loads all saved workout sessions and fills the history spinner.
-     */
+
+    //Loads all saved workout sessions and fills the history spinner.
     private fun loadWorkoutHistory(
         spinnerWorkoutHistory: Spinner,
         tvWorkoutHistoryPreview: TextView
@@ -235,10 +235,9 @@ class TrainingPlanActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * Loads all exercise logs for one selected workout session
-     * and shows them as readable text on screen.
-     */
+
+    //Loads all exercise logs for one selected workout session
+    //and shows them as readable text on screen.
     private fun loadWorkoutSessionDetails(
         session: WorkoutSession,
         tvWorkoutHistoryPreview: TextView
@@ -264,9 +263,8 @@ class TrainingPlanActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * Opens dialog for creating a custom workout program.
-     */
+
+    //Opens dialog for creating a custom workout program.
     private fun showCreateCustomProgramDialog(
         spinnerPrograms: Spinner,
         tvProgramPreview: TextView
@@ -325,6 +323,7 @@ class TrainingPlanActivity : AppCompatActivity() {
 
                 WorkoutProgramUtils.saveCustomProgram(
                     program = customProgram,
+                    userUid = viewedClientUid,
                     onSuccess = {
                         Toast.makeText(this, "Custom program saved", Toast.LENGTH_SHORT).show()
 
@@ -341,18 +340,16 @@ class TrainingPlanActivity : AppCompatActivity() {
             .show()
     }
 
-    /**
-     * Turns comma-separated text into a clean exercise list.
-     */
+
+    //Turns comma-separated text into a clean exercise list.
     private fun parseExercises(rawText: String): List<String> {
         return rawText.split(",")
             .map { it.trim() }
             .filter { it.isNotEmpty() }
     }
 
-    /**
-     * Builds readable program preview text.
-     */
+
+    //Builds readable program preview text.
     private fun buildProgramPreview(program: WorkoutProgram): String {
         val builder = StringBuilder()
         builder.append(program.name).append("\n\n")
@@ -368,9 +365,8 @@ class TrainingPlanActivity : AppCompatActivity() {
         return builder.toString()
     }
 
-    /**
-     * Converts yyyy-MM-dd into dd/MM/yyyy for nicer display.
-     */
+
+    //Converts yyyy-MM-dd into dd/MM/yyyy for nicer display.
     private fun storageDateToDisplayDate(storageDate: String): String {
         return try {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -382,11 +378,27 @@ class TrainingPlanActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Formats weight to 1 decimal place.
-     */
+
+    //Formats weight to 1 decimal place.
     private fun format1dp(value: Double): String {
         return String.format(Locale.getDefault(), "%.1f", value)
+    }
+
+    private fun applySavedSelectedProgram(spinnerPrograms: Spinner) {
+        WorkoutProgramUtils.loadSelectedProgram(
+            userUid = viewedClientUid,
+            onSuccess = { selectedProgramId ->
+                if (selectedProgramId == null) return@loadSelectedProgram
+
+                val index = allPrograms.indexOfFirst { it.id == selectedProgramId }
+                if (index != -1) {
+                    spinnerPrograms.setSelection(index)
+                }
+            },
+            onFailure = {
+                // do nothing
+            }
+        )
     }
 }
 

@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.Toast
 import android.content.Intent
 import com.example.w1965221_finalyearproject.client.WeightProgressActivity
+import com.example.w1965221_finalyearproject.client.TrainingPlanActivity
 
 //for adjusting the clients program
 
@@ -36,6 +37,7 @@ class ClientDetailActivity : AppCompatActivity() {
         val btnSaveClientMacros = findViewById<Button>(R.id.btnSaveClientMacros)
 
         val btnViewWeightProgress = findViewById<Button>(R.id.btnViewWeight)
+        val btnAdjustTrainingProgram = findViewById<Button>(R.id.btnAdjustTraining)
 
         if (clientUid.isNullOrEmpty()) {
             tvClientName.text = "Client"
@@ -95,6 +97,14 @@ class ClientDetailActivity : AppCompatActivity() {
             intent.putExtra("client_uid",clientUid)
             startActivity(intent)
         }
+
+        //adjust and change the client training program
+        btnAdjustTrainingProgram.setOnClickListener{
+            val intent = Intent(this,TrainingPlanActivity::class.java)
+            intent.putExtra("client_uid",clientUid)
+            startActivity(intent)
+        }
+
     }
 
     //load current cliuent summary from firebase and display it on screen
