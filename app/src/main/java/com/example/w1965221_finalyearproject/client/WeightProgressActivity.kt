@@ -38,6 +38,8 @@ class WeightProgressActivity : AppCompatActivity() {
     private var startWeightKg =0.0
     private var weeklyRateKg = 0.0
     private var durationWeeks = 12
+    //vairable passed only when coach opens client weight progress
+    private var viewClientUid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,55 +57,76 @@ class WeightProgressActivity : AppCompatActivity() {
         val btnSetGoal = findViewById<Button>(R.id.btnSetGoal)
         val btnAddWeight = findViewById<Button>(R.id.btnAddWeight)
 
+        //reading passed CLientUId if opened by coach contains UID
+        // else opened by client == null
+        viewClientUid = intent.getStringExtra("client_uid")
+
+
         //configure chart when screen opens empty plot
         setupChart(chart)
 
-        //load the starting wright and weekly rate from fire base
-        WeightGoalUtils.loadWeightGoalProfile(
-            onSuccess = { profile ->
-                if (profile == null) {
-                    Toast.makeText(this, "No goal profile found", Toast.LENGTH_SHORT).show()
-                    return@loadWeightGoalProfile
-                }
-
-                startWeightKg = profile.bodyWeightKg
-                weeklyRateKg = profile.weeklyRateKg
-
-                tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
-                tvRate.text = "Rate: ${format1dp(weeklyRateKg)} kg/week"
-
-                // Load saved duration + saved goal weight first
-                WeightLogUtils.loadWeightProgressSettings(
-                    onSuccess = { savedDurationWeeks, savedGoalWeightKg ->
-                        durationWeeks = savedDurationWeeks
-                        durationInput.setText(durationWeeks.toString())
-
-                        if (savedGoalWeightKg != null) {
-                            tvGoalWeight.text = "Goal weight: ${format1dp(savedGoalWeightKg)} kg"
-                        }
-
-                        // Then load all saved daily logs
-                        refreshWeightLogs(
-                            chart = chart,
-                            historyText = historyText,
-                            tvCurrentWeight = tvCurrentWeight
-                        )
-                    },
-                    onFailure = {
-                        // Even if settings fail, still load logs
-                        refreshWeightLogs(
-                            chart = chart,
-                            historyText = historyText,
-                            tvCurrentWeight = tvCurrentWeight
-                        )
+        // checks if viewClientuID EXITST if it does
+        //load the clients progress for the coach
+        //else works normally in client view
+        //all pulled from firebase
+        if (viewClientUid != null) {
+            WeightGoalUtils.loadWeightGoalProfileForUser(
+                userUid = viewClientUid!!,
+                onSuccess = { profile ->
+                    if (profile == null) {
+                        Toast.makeText(this, "No goal profile found", Toast.LENGTH_SHORT).show()
+                        return@loadWeightGoalProfileForUser
                     }
-                )
-            },
-            onFailure = { e ->
-                Toast.makeText(this, "Failed to load profile: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        )
 
+                    startWeightKg = profile.bodyWeightKg
+                    weeklyRateKg = profile.weeklyRateKg
+
+                    tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
+                    tvRate.text = "Rate: ${format1dp(weeklyRateKg)} kg/week"
+
+                    refreshWeightLogsForViewedUser(
+                        chart = chart,
+                        historyText = historyText,
+                        tvCurrentWeight = tvCurrentWeight
+                    )
+                },
+                onFailure = { e ->
+                    Toast.makeText(
+                        this,
+                        "Failed to load profile: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        } else {
+            WeightGoalUtils.loadWeightGoalProfile(
+                onSuccess = { profile ->
+                    if (profile == null) {
+                        Toast.makeText(this, "No goal profile found", Toast.LENGTH_SHORT).show()
+                        return@loadWeightGoalProfile
+                    }
+
+                    startWeightKg = profile.bodyWeightKg
+                    weeklyRateKg = profile.weeklyRateKg
+
+                    tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
+                    tvRate.text = "Rate: ${format1dp(weeklyRateKg)} kg/week"
+
+                    refreshWeightLogs(
+                        chart = chart,
+                        historyText = historyText,
+                        tvCurrentWeight = tvCurrentWeight
+                    )
+                },
+                onFailure = { e ->
+                    Toast.makeText(
+                        this,
+                        "Failed to load profile: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        }
         //user enters number of weeks it should run
         btnSetGoal.setOnClickListener {
             val weeks = durationInput.text.toString().toIntOrNull()
@@ -175,6 +198,45 @@ class WeightProgressActivity : AppCompatActivity() {
                 }
             )
         }
+    }
+    //loads the data for the coaches client not for logged in
+    //user
+    //if the ciewclientUid in use it will pull the data
+    //for the correct client
+    private fun refreshWeightLogsForViewedUser(
+        chart: LineChart,
+        historyText: TextView,
+        tvCurrentWeight: TextView
+    ) {
+        val targetUid = viewClientUid ?: return
+
+        WeightLogUtils.loadDailyWeightLogsForUser(
+            userUid = targetUid,
+            onSuccess = { logs ->
+                dailyLogs.clear()
+                dailyLogs.addAll(logs)
+
+                if (dailyLogs.isEmpty()) {
+                    tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
+                } else {
+                    val latestLog = dailyLogs.maxByOrNull { it.date }
+                    if (latestLog != null) {
+                        tvCurrentWeight.text =
+                            "Current weight: ${format1dp(latestLog.weightKg)} kg"
+                    }
+                }
+
+                rebuildHistory(historyText)
+                updateChart(chart)
+            },
+            onFailure = { e ->
+                Toast.makeText(
+                    this,
+                    "Failed to load weight logs: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        )
     }
 
     //roloads all daily logs from and refreshs ui

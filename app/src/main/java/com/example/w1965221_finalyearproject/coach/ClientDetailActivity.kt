@@ -8,6 +8,8 @@ import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
 import android.widget.EditText
 import android.widget.Button
 import android.widget.Toast
+import android.content.Intent
+import com.example.w1965221_finalyearproject.client.WeightProgressActivity
 
 //for adjusting the clients program
 
@@ -33,6 +35,7 @@ class ClientDetailActivity : AppCompatActivity() {
         val etCoachFats = findViewById<EditText>(R.id.etCoachFats)
         val btnSaveClientMacros = findViewById<Button>(R.id.btnSaveClientMacros)
 
+        val btnViewWeightProgress = findViewById<Button>(R.id.btnViewWeight)
 
         if (clientUid.isNullOrEmpty()) {
             tvClientName.text = "Client"
@@ -84,6 +87,13 @@ class ClientDetailActivity : AppCompatActivity() {
                     Toast.makeText(this, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             )
+        }
+
+        //check client weight progress button
+        btnViewWeightProgress.setOnClickListener{
+            val intent = Intent(this,WeightProgressActivity::class.java)
+            intent.putExtra("client_uid",clientUid)
+            startActivity(intent)
         }
     }
 

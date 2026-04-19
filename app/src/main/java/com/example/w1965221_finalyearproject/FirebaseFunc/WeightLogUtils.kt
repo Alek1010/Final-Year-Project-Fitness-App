@@ -137,24 +137,37 @@ object WeightLogUtils {
             }
     }
 
-    //optional helper for later if want to delete or edit
-    fun deleteDailyWeightLog(
-        date: String,
-        onSuccess: () -> Unit,
+
+    //load daily weight logs for user when coach opens up
+    //clients weight progress
+    fun loadDailyWeightLogsForUser(
+        userUid: String,
+        onSuccess: (List<DailyWeightLog>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
-            onFailure(Exception("User not logged in"))
-            return
-        }
-
         db.collection("user")
-            .document(uid)
+            .document(userUid)
             .collection("weightLogs")
-            .document(date)
-            .delete()
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onFailure(e) }
+            .get()
+            .addOnSuccessListener { result ->
+                val logs = result.documents.mapNotNull { document ->
+                    val date = document.id
+                    val weightKg = (document.get("weightKg") as? Number)?.toDouble()
+
+                    if (weightKg != null) {
+                        DailyWeightLog(
+                            date = date,
+                            weightKg = weightKg
+                        )
+                    } else {
+                        null
+                    }
+                }.sortedBy { it.date }
+
+                onSuccess(logs)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
     }
 }

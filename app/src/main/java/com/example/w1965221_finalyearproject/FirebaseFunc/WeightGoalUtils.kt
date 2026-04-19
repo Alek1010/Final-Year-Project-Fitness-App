@@ -71,4 +71,41 @@ object WeightGoalUtils {
             }
     }
 
+    fun loadWeightGoalProfileForUser(
+        userUid: String,
+        onSuccess: (WeightGoalProfile?) -> Unit,
+        onFailure: (Exception) -> Unit
+    ){
+        db.collection("user")
+            .document(userUid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    onSuccess(null)
+                    return@addOnSuccessListener
+                }
+
+                val bodyWeight = (document.get("bodyWeightKg") as? Number)?.toDouble()
+                val weeklyRate = (document.get("weeklyRateKg") as? Number)?.toDouble()
+                val goalType = document.getString("goalType")
+
+                if (bodyWeight != null && weeklyRate != null) {
+                    onSuccess(
+                        WeightGoalProfile(
+                            bodyWeightKg = bodyWeight,
+                            weeklyRateKg = weeklyRate,
+                            goalType = goalType ?: "maintain"
+                        )
+                    )
+                } else {
+                    onSuccess(null)
+                }
+            }
+            .addOnFailureListener{ e ->
+                onFailure(e)
+            }
+
+    }
+
+
 }
