@@ -37,7 +37,7 @@ object CalorieCalculator {
     //body fat percent
     //activity level
 
-    //output object containainig maintanence and the 6 other possible options
+    //output object containainig maintanence and t  he 6 other possible options
     fun calculateAllTargets(
         weightKg: Double,
         bodyFatPercent: Double?,

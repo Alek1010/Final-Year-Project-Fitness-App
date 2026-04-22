@@ -46,7 +46,6 @@ class ClientCalibrationActivity : AppCompatActivity() {
 
         val autoPreviewText = findViewById<TextView>(R.id.tvAutoPreview)
 
-        val rbManual = findViewById<android.widget.RadioButton>(R.id.rbManual)
         val rbAuto = findViewById<android.widget.RadioButton>(R.id.rbAuto)
 
         val rbMaintain = findViewById<android.widget.RadioButton>(R.id.rbMaintain)
@@ -264,7 +263,7 @@ class ClientCalibrationActivity : AppCompatActivity() {
                     "very_active" -> rgActivityLevel.check(R.id.rbVeryActive)
                 }
 
-                // --- target mode ---
+                //target mode
                 when (existingData.targetMode) {
                     "manual" -> rgTargetMode.check(R.id.rbManual)
                     "auto" -> rgTargetMode.check(R.id.rbAuto)

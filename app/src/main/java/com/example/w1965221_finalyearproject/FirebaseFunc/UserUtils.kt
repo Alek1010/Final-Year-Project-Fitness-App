@@ -8,7 +8,6 @@ import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.example.w1965221_finalyearproject.client.Client
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestoreSettings
 
 //reusable helper object for user related fire store operations
 

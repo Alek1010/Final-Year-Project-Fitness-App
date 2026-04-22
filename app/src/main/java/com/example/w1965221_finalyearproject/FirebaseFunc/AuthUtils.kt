@@ -6,7 +6,6 @@ import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.semantics.Role
 import com.example.w1965221_finalyearproject.client.ClientDashboardActivity
 import com.example.w1965221_finalyearproject.coach.CoachDashboardActivity
 import com.google.firebase.firestore.SetOptions

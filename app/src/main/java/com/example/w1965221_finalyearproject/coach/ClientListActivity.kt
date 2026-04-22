@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.w1965221_finalyearproject.R
-import com.example.w1965221_finalyearproject.client.Client
 import com.example.w1965221_finalyearproject.FirebaseFunc.UserUtils
 
 //master list of clients assigned to caoch

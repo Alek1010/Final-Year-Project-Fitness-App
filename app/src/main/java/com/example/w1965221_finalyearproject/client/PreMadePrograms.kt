@@ -143,7 +143,5 @@ object PreMadePrograms {
         )
     }
 
-    fun getProgramById(programId: String): WorkoutProgram? {
-        return getPrograms().find { it.id == programId }
-    }
+
 }

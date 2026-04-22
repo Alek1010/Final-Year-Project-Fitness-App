@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import com.example.w1965221_finalyearproject.auth.LoginActivity
 import com.example.w1965221_finalyearproject.client.ClientCalibrationActivity
 import com.example.w1965221_finalyearproject.coach.CoachDashboardActivity
 import com.google.firebase.Timestamp

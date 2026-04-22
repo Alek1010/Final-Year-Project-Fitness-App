@@ -18,7 +18,6 @@ import java.util.*
 import com.example.w1965221_finalyearproject.FirebaseFunc.WeightGoalUtils
 import com.example.w1965221_finalyearproject.FirebaseFunc.WeightLogUtils
 import com.example.w1965221_finalyearproject.calculations.WeightGoalCalculator
-import com.example.w1965221_finalyearproject.client.DailyWeightLog
 import com.github.mikephil.charting.components.XAxis
 import kotlin.math.roundToInt
 

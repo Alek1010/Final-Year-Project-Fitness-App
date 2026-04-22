@@ -24,7 +24,7 @@ object MacroCalculator {
         val proteinGrams = (weightKg*1.8).roundToInt()
 
         //convert protein grams to calories
-        val proteinCalories = proteinGrams
+        val proteinCalories = proteinGrams *4
 
         //fat calc
         val fatCalories = (calories*0.22)

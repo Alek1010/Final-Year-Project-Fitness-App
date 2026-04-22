@@ -25,8 +25,6 @@ class LoginActivity : AppCompatActivity() {
     // get FirebaseAuth instance
     private lateinit var auth: FirebaseAuth
 
-    //firebase database used to fetch users role
-    private val db by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
