@@ -5,7 +5,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
-
+//save one daily entry
+//load all daily weight entires for the current user
+//save the weight progress screen setting
+//load the weight progtress screen seeting
+//load another users weight logs when coach opens the clients progress screen
 object WeightLogUtils {
 
     private val auth = FirebaseAuth.getInstance()
@@ -27,24 +31,24 @@ object WeightLogUtils {
             onFailure(Exception("User not logged in"))
             return
         }
-
+        //save data in firestore for this day
         val data = hashMapOf(
             "date" to date,
             "weightKg" to weightKg,
+            //fire base server time stamp when save happends
             "timestamp" to FieldValue.serverTimestamp()
         )
-
+        //save info in coret place
         db.collection("user")
             .document(uid)
             .collection("weightLogs")
             .document(date)
-            .set(data)
+            .set(data)//means doc is created or overwriten
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener{ e-> onFailure(e)}
     }
 
     //load all saved weight for current user
-
     fun loadDailyWeightLogs(
         onSuccess: (List<DailyWeightLog>) -> Unit,
         onFailure: (Exception) -> Unit
@@ -54,12 +58,14 @@ object WeightLogUtils {
             onFailure(Exception("User not logged in"))
             return
         }
-
+        //read all documetns from user weights logs
         db.collection("user")
             .document(uid)
             .collection("weightLogs")
             .get()
             .addOnSuccessListener { result ->
+                //convert each doc into dailyweightLog object
+                //map to null skips invalide entries insread of crash
                 val logs = result.documents.mapNotNull { document ->
                     val date = document.getString("date")
                     val weightKg = (document.get("weightKg") as? Number)?.toDouble()
@@ -72,7 +78,7 @@ object WeightLogUtils {
                     } else {
                         null
                     }
-                }.sortedBy { it.date }
+                }.sortedBy { it.date }//sort log by date from olders to newest
 
                 onSuccess(logs)
             }
@@ -84,7 +90,6 @@ object WeightLogUtils {
 
      //Save weight progress screen settings into the main user document.
       //These values should persist when leaving and reopening the page.
-
     fun saveWeightProgressSettings(
         durationWeeks: Int,
         goalWeightKg: Double,
@@ -96,12 +101,12 @@ object WeightLogUtils {
             onFailure(Exception("User not logged in"))
             return
         }
-
+        //build a map of the settings to save
         val updates = hashMapOf<String, Any>(
             "weightProgressDurationWeeks" to durationWeeks,
             "weightProgressGoalWeightKg" to goalWeightKg
         )
-
+        //update user doc
         db.collection("user")
             .document(uid)
             .update(updates)
@@ -124,9 +129,10 @@ object WeightLogUtils {
             .document(uid)
             .get()
             .addOnSuccessListener { document ->
+                //if duration never saved defult is 12
                 val durationWeeks =
                     (document.get("weightProgressDurationWeeks") as? Number)?.toInt() ?: 12
-
+                //goal weight may be missed so it stays nullabe
                 val goalWeightKg =
                     (document.get("weightProgressGoalWeightKg") as? Number)?.toDouble()
 
@@ -145,11 +151,13 @@ object WeightLogUtils {
         onSuccess: (List<DailyWeightLog>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
+        //read all logs from users weight logs
         db.collection("user")
             .document(userUid)
             .collection("weightLogs")
             .get()
             .addOnSuccessListener { result ->
+                //converts document into daiyweight log
                 val logs = result.documents.mapNotNull { document ->
                     val date = document.id
                     val weightKg = (document.get("weightKg") as? Number)?.toDouble()

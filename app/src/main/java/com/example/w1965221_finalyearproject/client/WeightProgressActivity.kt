@@ -111,11 +111,41 @@ class WeightProgressActivity : AppCompatActivity() {
                     tvCurrentWeight.text = "Current weight: ${format1dp(startWeightKg)} kg"
                     tvRate.text = "Rate: ${format1dp(weeklyRateKg)} kg/week"
 
-                    refreshWeightLogs(
-                        chart = chart,
-                        historyText = historyText,
-                        tvCurrentWeight = tvCurrentWeight
+                    //load saved duration + saved gaol weight from firebase
+                    WeightLogUtils.loadWeightProgressSettings(
+                        onSuccess = {savedDurationWeeks, savedGoalWeightKg ->
+                            durationWeeks = savedDurationWeeks
+                            durationInput.setText(durationWeeks.toString())
+
+                            if (savedGoalWeightKg != null){
+                                tvGoalWeight.text = "GOAL weight ${format1dp(savedGoalWeightKg)} kg"
+                            }
+
+                            refreshWeightLogs(
+                                chart = chart,
+                                historyText = historyText,
+                                tvCurrentWeight = tvCurrentWeight
+                            )
+
+                        },onFailure = { e ->
+                            Toast.makeText(
+                                this,
+                                "Failed to load saved settings: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            refreshWeightLogs(
+                                chart = chart,
+                                historyText = historyText,
+                                tvCurrentWeight = tvCurrentWeight
+                            )
+
+
+
+                        }
                     )
+
+
                 },
                 onFailure = { e ->
                     Toast.makeText(

@@ -3,19 +3,20 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-//loading weight goal info
+//utility object for loading weight gol data from fire base
 object WeightGoalUtils {
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db by lazy { FirebaseFirestore.getInstance() }
 
     private const val USER_COLLECTION = "user"
-
+    //container for storeing key values
     data class WeightGoalProfile(
         val bodyWeightKg: Double,
         val weeklyRateKg: Double,
         val goalType: String
     )
-
+    //load weight gaol profile for current loggin user
+    //used for when normal client opens their own progress screen
     fun loadWeightGoalProfile(
         onSuccess: (WeightGoalProfile?) -> Unit,
         onFailure:(Exception)-> Unit
@@ -27,8 +28,9 @@ object WeightGoalUtils {
         }
 
         val uid = currentUser.uid
+        //Debug logging using during dev
         Log.d("WEIGHT_DEBUG", "Loading profile for uid = $uid from collection = $USER_COLLECTION")
-
+        //open users fire store doc
         db.collection(USER_COLLECTION).document(uid).get()
             .addOnSuccessListener { document ->
 
@@ -41,7 +43,8 @@ object WeightGoalUtils {
                 Log.d("WEIGHT_DEBUG", "Raw document data = ${document.data}")
 
 
-                //testing error read as number then convert to double
+                //Read values saflet
+                //fire store nums are read as nums then converted to double
                 val bodyWeight = (document.get("bodyWeightKg") as? Number)?.toDouble()
                 val weeklyRate = (document.get("weeklyRateKg") as? Number)?.toDouble()
                 val goalType = document.getString("goalType")
@@ -51,12 +54,12 @@ object WeightGoalUtils {
                 Log.d("WEIGHT_DEBUG", "goalType = $goalType")
 
 
-
+                //if important value missing return null instead of crashing
                 if (bodyWeight == null || weeklyRate == null || goalType == null){
                     onSuccess(null)
                     return@addOnSuccessListener
                 }
-
+                //if all exisit return them inside a weightGoalProfile object
                 onSuccess(
                     WeightGoalProfile(
                         bodyWeightKg = bodyWeight,
@@ -71,11 +74,15 @@ object WeightGoalUtils {
             }
     }
 
+    //loadf weight goal for specific user UID
+    //used for when coach opens selected clients weight progress screen
+    //works same however nothing is returned it jist needs to be opened and read
     fun loadWeightGoalProfileForUser(
         userUid: String,
         onSuccess: (WeightGoalProfile?) -> Unit,
         onFailure: (Exception) -> Unit
     ){
+        //open selected user firestore doc directly
         db.collection("user")
             .document(userUid)
             .get()

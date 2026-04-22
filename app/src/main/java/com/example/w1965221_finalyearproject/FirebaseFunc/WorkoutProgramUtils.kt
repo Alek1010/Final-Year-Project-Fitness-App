@@ -9,6 +9,13 @@ import com.example.w1965221_finalyearproject.client.WorkoutSession
 
 
 //handes firebase operations to the workout progams
+//saving the selected program
+//loading the selected program
+//saving exercise logs
+//saving custom program
+//loading custome programs
+//loading workout histroy
+//loading excerise logs inside a session
 object WorkoutProgramUtils {
 
     private val auth = FirebaseAuth.getInstance()

@@ -125,11 +125,13 @@ object UserUtils{
     //if the code matches a coach
     // save linkedCoachId+ linkedCoachcode on client doc
     //add this client inside coach/uid/clients
+    //creates relationshio
     fun linkClientToCoach(
         coachCode: String,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
+        //get current logged in firebase user
         val clientUser = FirebaseAuth.getInstance().currentUser
         if (clientUser == null) {
             onFailure(Exception("User not logged in"))
@@ -145,11 +147,14 @@ object UserUtils{
                 val goalType = clientDoc.getString("goalType") ?: "No goal"
 
                 //  find coach by code
+                //matches role and code
                 db.collection(USER_COLLECTION)
                     .whereEqualTo("role", "coach")
                     .whereEqualTo("coachCode", coachCode)
                     .get()
                     .addOnSuccessListener { result ->
+                        //gives the first matching coach doc or null if the code is invalid
+                        //no coach was found
                         val coachDoc = result.documents.firstOrNull()
 
                         if (coachDoc == null) {
@@ -197,6 +202,7 @@ object UserUtils{
 
 
     //load real linked clients for the currently logged in coach
+    //shows which coach the client is linked to
     fun loadLinkedCoachCode(
         onSuccess: (String?) -> Unit,
         onFailure: (Exception) -> Unit
@@ -206,7 +212,7 @@ object UserUtils{
             onFailure(Exception("User not logged in"))
             return
         }
-
+        //open first users fire store document and return linked coach code
         db.collection(USER_COLLECTION).document(uid).get()
             .addOnSuccessListener { document ->
                 onSuccess(document.getString("linkedCoachCode"))
@@ -218,6 +224,7 @@ object UserUtils{
 
 
      // Load real linked clients for the currently logged in coach.
+    //gets all linked clients for coach list
      fun loadCoachClients(
          onSuccess: (List<Client>) -> Unit,
          onFailure: (Exception) -> Unit
@@ -227,13 +234,15 @@ object UserUtils{
              onFailure(Exception("User not logged in"))
              return
          }
-
+        //read all documents inside the subcollection
          db.collection(USER_COLLECTION)
              .document(coachUid)
              .collection("clients")
              .get()
              .addOnSuccessListener { result ->
                  val clients = result.documents.map { doc ->
+                     //convert each firestore doc into client object
+                     //used for the recylcler view
                      Client(
                          uid = doc.id,
                          name = doc.getString("clientName") ?: "Client",
@@ -241,6 +250,7 @@ object UserUtils{
                          status = "Linked"
                      )
                  }
+                 //return final list to recyckler view
                  onSuccess(clients)
              }
              .addOnFailureListener { e ->
@@ -250,6 +260,7 @@ object UserUtils{
 
     //load clients real summary from the main user document
     //used by coach client detail screen
+    //loads one client's details
     fun loadClientSummary(
         clientUid: String,
         onSuccess: (String,String) -> Unit,
